@@ -13,13 +13,12 @@ runmap = {[2,4,5],[2:8],[3:5],[2:6],[2:5]};
 %% Variables
 % Gobal Variables
 trialWin = [100 Inf];
-interval_N = 1:2;
-MinMax = [0 1000];
+Distance_N = 1:2;
+MinMax = [2 30];
 outlier = Inf;
 FitAll = 1;
-FitRuns = 1;
 SaveFlg = 1;
-dt = 10;
+dt = 1;
 
 % Fit parameters
 fparams.fittype = {'BLSbiasedLapse','aveMeasurements'};     % Specifies which models to fit to the data
@@ -48,15 +47,12 @@ bootparams.nbootstraps = 100;
 bootparams.nsamps = 500;
 
 % Parameters for calculating expected aim times
-TAexpectation.method = 'numerical';
-TAexpectation.trialtypes = [1 2];
-TAexpectation.ts_vec = (550:10:1050)';
-TAexpectation.simtrials = 10000;
+DAexpectation.method = 'numerical';
+DAexpectation.trialtypes = [1 2];
+DAexpectation.ds_vec = (12:0.1:20)';
+DAexpectation.simtrials = 10000;
 
 runs = runmap{SubjectN};
-
-% Run through each subject and fit
-disp(['Subject ' Subjects{SubjectN}])
 
 % Load the data
 d = load([Subjects{SubjectN} '_DistanceReproduction']);
@@ -72,9 +68,12 @@ end
 
 % Fit all the data
 if FitAll
-    [mtp, stdtp, bias, variance, rmse, wm, wp, b, pval, weber, tsIn, tpIn, trialsIn, ts_in, tp_in, Trials_sorted, estb, ta, G, Llikelihood, BIASs, VARs, lapse, lapseTrials] = RS2G_psychophysicsPoolAnalysis(d,'runs',runs,'interval_N',interval_N,'Fit',fparams,'Plot','No',...
+    [mtp, stdtp, bias, variance, rmse, wm, wp, b, pval, weber, tsIn, tpIn,...
+        trialsIn, ts_in, tp_in, Trials_sorted, estb, ta, G, Llikelihood,...
+        BIASs, VARs, lapse, lapseTrials] = DistanceReproductionPoolAnalysis(d,...
+        'runs',runs,'Distance_N',Distance_N,'Fit',fparams,'Plot','No',...
         'outlier',outlier,'ConflictType','equal','MinMax',MinMax,'Bootstrap',bootparams,...
-        'TAexpectation',TAexpectation,'trialWin',trialWin,'Save',SaveParam);
+        'DAexpectation',DAexpectation,'trialWin',trialWin,'Save',SaveParam);
 end
 
 

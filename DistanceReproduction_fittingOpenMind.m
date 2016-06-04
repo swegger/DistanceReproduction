@@ -7,8 +7,8 @@ function DistanceReproduction_fittingOpenMind(SubjectN)
 %%
 
 %% Subject map
-Subjects = {'JW','MD','SM','SS','VD'};
-runmap = {[2,4,5],[2:8],[3:5],[2:6],[2:5]};
+Subjects = {'JW','MD','SM','SS','TT','VD'};
+runmap = {[2,4,5],[2:8],[3:5],[2:6],[2:6],[2:5]};
 
 %% Variables
 % Gobal Variables

@@ -49,7 +49,7 @@ bootparams.nsamps = 500;
 % Parameters for calculating expected aim times
 DAexpectation.method = 'numerical';
 DAexpectation.trialtypes = [1 2];
-DAexpectation.ds_vec = (12:0.1:20)';
+DAexpectation.ds_vec = (13:0.1:19)';
 DAexpectation.simtrials = 10000;
 
 runs = runmap{SubjectN};

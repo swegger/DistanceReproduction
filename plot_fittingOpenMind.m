@@ -3,7 +3,7 @@ function plot_fittingOpenMind(list,varargin)
 %
 %   plot_fittingOpenMind(slist)
 %
-%   Plots t_s vs t_p and bias and variance using results from fitting for
+%   Plots d_s vs d_p and bias and variance using results from fitting for
 %   each subject in list.
 %
 %
@@ -18,8 +18,9 @@ Parser = inputParser;
 addRequired(Parser,'list')
 addParameter(Parser,'SaveOpts',Save_default)
 addParameter(Parser,'CloseFigs',false)
-addParameter(Parser,'FigureTypes',{'ts_v_tp_1ax','RMSE'})
+addParameter(Parser,'FigureTypes',{'ds_v_dp_1ax','RMSE','SquaredErrors'})
 addParameter(Parser,'Permutations',100);
+addParameter(Parser,'DSS',[14:1:18])
 
 parse(Parser,list,varargin{:})
 
@@ -28,6 +29,7 @@ SaveOpts = Parser.Results.SaveOpts;
 CloseFigs = Parser.Results.CloseFigs;
 FigureTypes = Parser.Results.FigureTypes;
 Permutations = Parser.Results.Permutations;
+DSS = Parser.Results.DSS;
 
 %% Plot the data
 for i = 1:length(list)
@@ -41,15 +43,14 @@ for i = 1:length(list)
     wp = mean(WP(:,Fit.modelUsed));
     b = mean(B(:,Fit.modelUsed));
     L = mean(lapse(:,Fit.modelUsed));
-    
     maxrmse = max(max(rmse));
     
     % Display statistics
 %     disp(['Subject ' d.sname])
-%     disp(['RSG trials: ' num2str(numel(tsIn{1}))])
-%     disp(['RSSG trials: ' num2str(numel(tsIn{2}))])
-%     disp(['RSG lapses: ' num2str(sum(lapseTrials{1}))])
-%     disp(['RSSG lapses: ' num2str(sum(lapseTrials{2}))])
+%     disp(['$N=1$ trials: ' num2str(numel(dsIn{1}))])
+%     disp(['RSSG trials: ' num2str(numel(dsIn{2}))])
+%     disp(['$N=1$ lapses: ' num2str(sum(lapseTrials{1}))])
+%     disp(['$N=2$ lapses: ' num2str(sum(lapseTrials{2}))])
 %     disp(['w_m: ' num2str(mean(WM,1))])
 %     disp(['w_p: ' num2str(mean(WP,1))])
 %     disp(['b: ' num2str(mean(B,1))])
@@ -57,8 +58,8 @@ for i = 1:length(list)
 %     disp('')
     
 
-    % Dependence on sample time
-    if any(strcmp('ts_v_tp',FigureTypes))
+    % Dependence on sample distance
+    if any(strcmp('ds_v_dp',FigureTypes))
         scrsz = get(groot,'ScreenSize');
         %figure('Name',[d.sname ' dependence on sample time'],'Position',[scrsz(3) scrsz(4) scrsz(3) scrsz(4)].*RelativeFigSize)
         fH1 = figure('Name',[d.sname ' dependence on sample time'],'Units','normalized','Position',[0.3536 0.4333 0.5646 0.4808]);
@@ -66,10 +67,10 @@ for i = 1:length(list)
         allts = [];
         alltp = [];
         for i = m
-            allts = [allts; tsIn{i}(~lapseTrials{i})];
-            alltp = [alltp; tpIn{i}(~lapseTrials{i})];
+            allts = [allts; dsIn{i}(~lapseTrials{i})];
+            alltp = [alltp; dpIn{i}(~lapseTrials{i})];
         end
-        ax = [400 1200 400 1200]; %[min(allts)-100 max(allts)+100 min(alltp)-100 max(alltp)+100];
+        ax = [10 22 10 22]; %[min(allts)-100 max(allts)+100 min(alltp)-100 max(alltp)+100];
         xticks = ax(1)+100:200:ax(2)-100;
         xticklabels = strread(num2str(xticks),'%s');
         yticks = ax(3)+100:200:ax(4)-100;
@@ -84,16 +85,16 @@ for i = 1:length(list)
             axes(h(i))
             %subplot(1,length(m),plotind)
             plotind = plotind+1;
-            plot(tsIn{i}(~lapseTrials{i}),tpIn{i}(~lapseTrials{i}),'o','Color',colors(i,:)+(1 - colors(i,:))/1.5)
+            plot(dsIn{i}(~lapseTrials{i}),dpIn{i}(~lapseTrials{i}),'o','Color',colors(i,:)+(1 - colors(i,:))/1.5)
             %         hold all
-            %         plot(tsIn{i}(lapseTrials{i}),tpIn{i}(lapseTrials{i}),'.','Color',[0 0 0])
+            %         plot(dsIn{i}(lapseTrials{i}),dpIn{i}(lapseTrials{i}),'.','Color',[0 0 0])
             %             for ii = 1:length(ts_in{i})
             %                 plot(ts_in{i}{ii},tp_in{i}{ii},'.','Color',colors(i,:)+(1 - colors(i,:))/1.5)
             %                 hold all
             %             end
-            %plot(tss(1)-200:tss(end)+200,tss(1)-200:tss(end)+200,'k')
-            text(tss(end),tss(1)-100,['p = ' num2str(pval(i))]);
-            axis(ax)
+            %plot(DSS(1)-200:DSS(end)+200,DSS(1)-200:DSS(end)+200,'k')
+            %text(DSS,DSS(1)-100,['p = ' num2str(pval(i))]);
+                axis(ax)
             %        title(titles{i});
         end
         %    tpmax = max(alltp);
@@ -107,17 +108,17 @@ for i = 1:length(list)
             axes(h(i));
             %subplot(1,length(m),plotind)
             plotind = plotind+1;
-            eh = errorbar(tss,mtp_in(:,i),stdtp_in(:,i),'o','Color',colors(i,:),'LineWidth',2);
+            eh = errorbar(DSS,mdp_in(:,i),stddp_in(:,i),'o','Color',colors(i,:),'LineWidth',2);
             set(eh,'MarkerFaceColor',colors(i,:))
             hold all
-            if ~strcmp('none',Fit.fittype(Fit.modelUsed)) && any(i == interval_N)
-                plot(ts_vec,ta(:,i)+b,'Color',colors(i,:),'LineWidth',2)
+            if ~strcmp('none',Fit.fittype(Fit.modelUsed)) && any(i == Distance_N)
+                plot(ds_vec,ta(:,i)+b,'Color',colors(i,:),'LineWidth',2)
             end
             axis(ax)
-            %plot(tss(1)-200:tss(end)+200,tss(1)-200:tss(end)+200,'k')
+            %plot(DSS(1)-200:DSS(end)+200,DSS(1)-200:DSS(end)+200,'k')
             axis square
-            xlabel('t_s(ms)')
-            ylabel('t_p (ms)')
+            xlabel('d_s(ms)')
+            ylabel('d_p (ms)')
             mymakeaxis(gca,'xytitle',titles{i},'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         end
         
@@ -137,13 +138,13 @@ for i = 1:length(list)
     end
     
     % Plot ts vs. tp for RS1G and RS2G on same axes
-    if any(strcmp('ts_v_tp_1ax',FigureTypes))
+    if any(strcmp('ds_v_dp_1ax',FigureTypes))
         fH3 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-        ax = [500 1100 500 1100];
-        xticks = ax(1)+100:200:ax(2)-100;
+        ax = [10 22 10 22];
+        xticks = ax(1)+2:4:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(3)+100:200:ax(4)-100;
+        yticks = ax(1)+2:4:ax(2)-2;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             axis(ax);
@@ -151,23 +152,23 @@ for i = 1:length(list)
             hold on
         end
         for i = m
-            if ~strcmp('none',Fit.fittype(Fit.modelUsed)) && any(i == interval_N)
-                plot(ts_vec,ta(:,i)+b,'Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2)
+            if ~strcmp('none',Fit.fittype(Fit.modelUsed)) && any(i == Distance_N)
+                plot(ds_vec,ta(:,i)+b,'Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2)
             end
         end
         for i = m
-            for j = 1:length(tss)
-                Ntrials(j,i) = sum(~lapseTrials{i} & tsIn{i} == tss(j));
+            for j = 1:length(DSS)
+                Ntrials(j,i) = sum(~lapseTrials{i} & dsIn{i} == DSS(j));
             end
-            eh = errorbar(tss,mtp_in(:,i),stdtp_in(:,i),'.','Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2);
+            eh = errorbar(DSS,mdp_in(:,i),stddp_in(:,i),'.','Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2);
         end
         for i = m
-            mh = plot(tss,mtp_in(:,i),'o','Color',colors(i,:));
+            mh = plot(DSS,mdp_in(:,i),'o','Color',colors(i,:));
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
         axis square
-        xlabel('t_s(ms)')
-        ylabel('t_p (ms)')
+        xlabel('d_s(ms)')
+        ylabel('d_p (ms)')
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')
@@ -185,24 +186,24 @@ for i = 1:length(list)
         
         % Generate expected production interval under second model
         switch Fit.fittype{~(Fit.modelUsed == [1 2])}
-            case 'AveMeasbiasedLapse'
+            case 'aveMeasurements'
                 for i = m
-                    taAlt(:,i) = ta_expectation3(ts_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(tss) max(tss)]);
+                    taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                 end
                 
             case 'MAPbiasedLapse'
                 for i = m
-                    taAlt(:,i) = ta_expectation3(ts_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(tss) max(tss)]);
+                    taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                 end
         end
         
         % Replot with the expectations of the alternative model
         fH3_2 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-        ax = [500 1100 500 1100];
-        xticks = ax(1)+100:200:ax(2)-100;
+         ax = [10 22 10 22];
+        xticks = ax(1)+2:4:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(3)+100:200:ax(4)-100;
+        yticks = ax(1)+2:4:ax(2)-2;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             axis(ax);
@@ -210,23 +211,23 @@ for i = 1:length(list)
             hold on
         end
         for i = m
-            if ~strcmp('none',Fit.fittype(2)) && any(i == interval_N)
-                plot(ts_vec,taAlt(:,i)+mean(B(:,~(Fit.modelUsed == [1 2]))),'Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2)
+            if ~strcmp('none',Fit.fittype(2)) && any(i == Distance_N)
+                plot(ds_vec,taAlt(:,i)+mean(B(:,~(Fit.modelUsed == [1 2]))),'Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2)
             end
         end
         for i = m
-            for j = 1:length(tss)
-                Ntrials(j,i) = sum(~lapseTrials{i} & tsIn{i} == tss(j));
+            for j = 1:length(DSS)
+                Ntrials(j,i) = sum(~lapseTrials{i} & dsIn{i} == DSS(j));
             end
-            eh = errorbar(tss,mtp_in(:,i),stdtp_in(:,i),'.','Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2);
+            eh = errorbar(DSS,mdp_in(:,i),stddp_in(:,i),'.','Color',colors(i,:)+0.6*(~colors(i,:)),'LineWidth',2);
         end
         for i = m
-            mh = plot(tss,mtp_in(:,i),'o','Color',colors(i,:));
+            mh = plot(DSS,mdp_in(:,i),'o','Color',colors(i,:));
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
         axis square
-        xlabel('t_s(ms)')
-        ylabel('t_p (ms)')
+        xlabel('d_s(ms)')
+        ylabel('d_p (ms)')
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')
@@ -256,11 +257,11 @@ for i = 1:length(list)
                 h(i) = plot(sqrt(simbias(i)),sqrt(simv(i)),'o','Color',colors(i,:));
                 switch Fit.fittype{~(Fit.modelUsed == [1 2])}
                     case 'AveMeasbiasedLapse'
-                        [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(tss',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(tss) max(tss)]);
+                        [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(DSS',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                         plot(sqrt(altbias(i)),sqrt(altvar(i)),'s','Color',colors(i,:));
                         
                     case 'MAPbiasedLapse'
-                        [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(tss',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(tss) max(tss)]);
+                        [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(DSS',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                         plot(sqrt(altbias(i)),sqrt(altvar(i)),'s','Color',colors(i,:));
                 end
             end
@@ -297,18 +298,19 @@ for i = 1:length(list)
         switch Fit.fittype{~(Fit.modelUsed == [1 2])}
             case 'AveMeasbiasedLapse'
                 for i = m
-                    [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(tss',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(tss) max(tss)]);
+                    [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(DSS',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                 end
                 
             case 'MAPbiasedLapse'
                 for i = m
-                    [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(tss',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(tss) max(tss)]);
+                    [~, ~, altbias(i), altvar(i), altRMSE(i)] = ta_expectation3(DSS',mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                 end
         end
         
         fH3 = figure('Name',[d.sname ' RMSE']);
         barProperties.EdgeColor = 'none';
         barProperties.ShowBaseLine = 'off';
+        barProperties.BarWidth = 0.8;
         for i = m
             barProperties.FaceColor = colors(i,:);
             tempx = 0:max(m)+1;
@@ -332,7 +334,7 @@ for i = 1:length(list)
         ylabel('RMSE')
         h = gca;
         xticks = [1 2];
-        xticklabels = {'RSG','RSSG'};
+        xticklabels = {'$N=1$','$N=2$'};
         yticks = linspace(h.YTick(1),h.YTick(end),3);
         yticklabels = strread(num2str(yticks),'%s');
         mymakeaxis(gca,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
@@ -349,5 +351,26 @@ for i = 1:length(list)
         if CloseFigs
             close(fH3)
         end
+    end
+    
+    if any(strcmp('SquaredErrors',FigureTypes))
+        fH4 = figure('Name',[d.sname ' Squared Errors']);
+        for i = m
+            n(i) = size(dsIn{i},1);
+            SE{i} = (dsIn{i} - dpIn{i}).^2;
+        end
+        edges = linspace(min(vertcat(SE{:})),max(vertcat(SE{:})),100);
+        for i = m
+            counts{i} = histcounts(SE{i},edges);
+            plot(edges(1:end-1)+(edges(2)-edges(1))/2,cumsum(counts{i})/n(i),'LineWidth',2,'Color',colors(i,:))
+            hold on
+        end
+        axis([0 edges(end) 0 1])
+        p = ranksum(SE{1},SE{2},'tail','right');
+        text(max(vertcat(SE{:}))*3/4,0.5,['p = ' num2str(p)],'horizontalAlignment','center');
+        xlabel('Squared error (deg^2)')
+        ylabel('Cumulative probability')
+        legend('N = 1','N = 2','Location','SouthEast')
+        mymakeaxis(gca)
     end
 end

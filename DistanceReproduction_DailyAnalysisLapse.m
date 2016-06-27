@@ -48,7 +48,7 @@ for i = 1:d.runs
 end
 
 % Fit the data and plot results
-for i = 2:d.runs
+for i = 1:d.runs
     if fitflg(i)
         [mdp, stddp, bias, variance, rmse, wm, wp, b, pval, weber, dsIn, dpIn,...
             trialsIn, ds_in, dp_in, Trials_sorted, estb, ta, G, Llikelihood,...

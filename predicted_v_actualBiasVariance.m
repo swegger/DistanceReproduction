@@ -10,21 +10,21 @@ function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, deltaBV, 
 %
 %%
 
-% Defaults
+%% Defaults
 DAexpectation_default.methodopts.dx = 0.01;
-DAexpectation_default.dt = 10;
+DAexpectation_default.dt = 1;
 PlotOpts_default.colors = [0 0 1; 1 0 0];
 TheoreticalRMSE_default.wmvec = NaN;
 TheoreticalRMSE_default.type = 'EachSubject';
 
-% Parse inputs
+%% Parse inputs
 Parser = inputParser;
 
 addRequired(Parser,'slist')     % List of subjects to analyze
 addParameter(Parser,'N',2)      % Maximum number of sets
-addParameter(Parser,'dss',600:100:1000)     % sample times for experiment
+addParameter(Parser,'dss',14:1:18)     % sample times for experiment
 addParameter(Parser,'simulationN',10000)    % Number of trials per simulation
-addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20150913')
+addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20160604')
 addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling the calculation of the expected value of aim times under a model
 addParameter(Parser,'TheoreticalRMSE',TheoreticalRMSE_default)
 addParameter(Parser,'Plot','Yes')
@@ -204,15 +204,15 @@ switch Plot
         xlabel('BIAS & sqrt(Var) (ms)')
         ylabel('Expected BIAS & sqrt(Var) (ms)')
 %         title('Actual vs BLS')
-        xticks = 0:50:150;
-        xticklabels = {'0','50','100','150'};
+        xticks = 0:0.5:1.5;
+        xticklabels = {'0','0.5','1.0','1.5'};
         yticks = xticks;
         yticklabels = xticklabels;
         mymakeaxis(gca,'xytitle','Actual vs BLS','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
         subplot(2,2,2)
         for n = 1:N
-            plot(BIAS(:,n),SimBiasBLS(:,n),'o','Color',[1 1 1],'MarkerFaceColor',PlotOpts.colors(n,:))
+            plot(BIAS(:,n)-SimBiasBLS(:,n),'o','Color',[1 1 1],'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
             q = find(strcmp('CV',slist));
             plot(BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
@@ -231,8 +231,8 @@ switch Plot
         plotUnity;
         xlabel('BIAS & sqrt(Var) (ms)')
         ylabel('Expected BIAS & sqrt(Var) (ms)')
-        xticks = 0:50:150;
-        xticklabels = {'0','50','100','150'};
+        xticks = 0:0.5:1.5;
+        xticklabels = {'0','0.5','1.0','1.5'};
         yticks = xticks;
         yticklabels = xticklabels;
         mymakeaxis(gca,'xytitle','Actual vs BLS','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
@@ -270,7 +270,7 @@ switch Plot
         xlabel('BIAS & sqrt(Var) (ms)')
         ylabel('Expected BIAS & sqrt(Var) (ms)')
         mymakeaxis(gca,'xytitle','Actual vs Averaging','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
-        legend({'RSG BIAS','RSSG BIAS','RSG sqrtVAR','RSSG sqrtVAR'})
+        legend({'$N=1$ BIAS','$N=2$ BIAS','$N=1$ sqrtVAR','$N=2$ sqrtVAR'})
          
         % RMSE observed v. model
         fh = figure('Name','Expected v. Actual RMSE');
@@ -294,17 +294,17 @@ switch Plot
         ax(2,:) = axis;
         xlabel('Observed RMSE (ms)')
         ylabel('Expected RMSE (ms) under Averaging model')
-        legend('RSG','RSSG','Unity','Location','NorthWest')
+        legend('$N=1$','$N=2$','Unity','Location','NorthWest')
         
         for i = 1:2
             subplot(1,2,i)
             axis([min(min(ax(:,[1 3]))) max(max(ax(:,[2 4]))) min(min(ax(:,[1 3]))) max(max(ax(:,[2 4])))])
             plotUnity;
             ah = gca;
-            xticks = 50:50:150;
-            xticklabels = {'50','100','150'};
-            yticks = 50:50:150;
-            yticklabels = {'50','100','150'};
+            xticks = 0.5:0.5:1.5;
+            xticklabels = {'0.5','1.0','1.5'};
+            yticks = 0.5:0.5:1.5;
+            yticklabels = {'0.5','1.0','1.5'};
             mymakeaxis(ah,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         end
         
@@ -325,9 +325,9 @@ switch Plot
         legend(h,slist)
         ah = gca;
         xticks = [1 2];
-        xticklabels = {'RSG','RSSG'};
-        yticks = 50:50:150;
-        yticklabels = {'50','100','150'};
+        xticklabels = {'$N=1$','$N=2$'};
+        yticks = 1.0:0.5:2.0;
+        yticklabels = {'1.0','1.5','2.0'};
         mymakeaxis(gca,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
         subplot(1,3,2)
@@ -357,10 +357,10 @@ switch Plot
         ylabel('RMSE_2')
         legend(h,slist,'Location','NorthWest')
         ah = gca;
-        xticks = 50:50:150;
-        xticklabels = {'50','100','150'};
-        yticks = 50:50:150;
-        yticklabels = {'50','100','150'};
+        xticks = 0.5:0.5:1.5;
+        xticklabels = {'0.5','1.0','1.5'};
+        yticks = 0.5:0.5:1.5;
+        yticklabels = {'0.5','1.0','1.5'};
         mymakeaxis(ah,'xytitle','RMSE_1 vs RMSE2','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
         % RMSE of BLS v Averaging
@@ -405,7 +405,7 @@ switch Plot
             axis([min(ax(:,1)) max(ax(:,2)) min(ax(:,3)) max(ax(:,4))])
             ah = gca;
             xticks = [1 2];
-            xticklabels = {'RSG','RSSG'};
+            xticklabels = {'$N=1$','$N=2$'};
             yticks = ah.YTick(1:2:end);
             yticklabels = ah.YTickLabel(1:2:end);
             mymakeaxis(gca,'xytitle',T{i},'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
@@ -630,9 +630,9 @@ switch Plot
         end
         ax(1,:) = axis;
         axis square
-        titles{1} = 'RSG';
-        xlabel('Bias for shortest t_s (ms)')
-        ylabel('Bias for longest t_s (ms)')
+        titles{1} = '$N=1$';
+        xlabel('Bias for shortest d_s (ms)')
+        ylabel('Bias for longest d_s (ms)')
         legend(h,slist,'Location','SouthEast')
         
         subplot(1,3,2)
@@ -642,9 +642,9 @@ switch Plot
         end
         ax(2,:) = axis;
         axis square
-        titles{2} = 'RSSG';
-        xlabel('Bias for shortest t_s (ms)')
-        ylabel('Bias for longest t_s (ms)')
+        titles{2} = '$N=2$';
+        xlabel('Bias for shortest d_s (ms)')
+        ylabel('Bias for longest d_s (ms)')
         legend(h,slist,'Location','SouthEast')
         
         subplot(1,3,3)
@@ -655,9 +655,9 @@ switch Plot
         end
         ax(3,:) = axis;
         axis square
-        titles{3} = 'RSG and RSSG';
-        xlabel('Bias for shortest t_s (ms)')
-        ylabel('Bias for longest t_s (ms)')
+        titles{3} = '$N=1$ and $N=2$';
+        xlabel('Bias for shortest d_s (ms)')
+        ylabel('Bias for longest d_s (ms)')
         
         AX = [min(min(ax(:,[1 3]))) max(max(ax(:,[2 4]))) min(min(ax(:,[1 3]))) max(max(ax(:,[2 4])))];
         for i = 1:3

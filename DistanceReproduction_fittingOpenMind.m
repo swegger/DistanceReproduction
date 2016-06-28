@@ -7,8 +7,8 @@ function DistanceReproduction_fittingOpenMind(SubjectN)
 %%
 
 %% Subject map
-Subjects = {'JW','MD','SM','SS','TT','VD'};
-runmap = {[2,4,5],[2:8],[3:5],[2:6],[2:6],[2:5]};
+Subjects = {'JW','MD','SM','SS','SWE','TT','VD'};
+runmap = {[2,4,5:8],[2:10],[3:6],[2:9,11],[2:10],[2:10],[2:5]};
 
 %% Variables
 % Gobal Variables
@@ -18,7 +18,7 @@ MinMax = [2 30];
 outlier = Inf;
 FitAll = 1;
 SaveFlg = 1;
-dt = 1;
+dt = 0.5;
 
 % Fit parameters
 fparams.fittype = {'BLSbiasedLapse','aveMeasurements'};     % Specifies which models to fit to the data
@@ -39,7 +39,7 @@ fparams.ModelEvidence.paramLimits = [0.0001 1;...
                              -200 200;...
                              0 1];
 fparams.ModelEvidence.integrationMethod = 'quad';
-fparams.ModelEvidence.integrationOptions.dx = 0.1;
+fparams.ModelEvidence.integrationOptions.dx = 0.05;
 fparams.ModelEvidence.OpenMind = 1;
 
 % Bias/Variance bootstrap parameters

@@ -24,7 +24,7 @@ addRequired(Parser,'slist')     % List of subjects to analyze
 addParameter(Parser,'N',2)      % Maximum number of sets
 addParameter(Parser,'dss',14:1:18)     % sample times for experiment
 addParameter(Parser,'simulationN',10000)    % Number of trials per simulation
-addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20160604')
+addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20160628')
 addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling the calculation of the expected value of aim times under a model
 addParameter(Parser,'TheoreticalRMSE',TheoreticalRMSE_default)
 addParameter(Parser,'Plot','Yes')
@@ -173,7 +173,7 @@ switch Plot
         fh = figure('Name','Actual vs predicted BIAS & sqrt(VAR)');
         fh.Units = 'normalized';
         fh.Position = [0.1677 0.5067 0.6479 0.3992];
-        subplot(2,2,1)
+        subplot(1,3,1)
         for n = 1:N
             plot(BIAS(:,n),SimBiasBLS(:,n),'o','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
@@ -185,8 +185,8 @@ switch Plot
 %        plot([min([BIAS(:); SimBiasBLS(:)]) max([BIAS(:); SimBiasBLS(:)])],[min([BIAS(:); SimBiasBLS(:)]) max([BIAS(:); SimBiasBLS(:)])],'k--')
 %        axis square
 %        axis([min([BIAS(:); SimBiasBLS(:)]) max([BIAS(:); SimBiasBLS(:)]) min([BIAS(:); SimBiasBLS(:)]) max([BIAS(:); SimBiasBLS(:)])])
-%        xlabel('Bias (ms)')
-%        ylabel('Expected bias (ms)')
+%        xlabel('Bias (deg)')
+%        ylabel('Expected bias (deg)')
         
 %        subplot(1,2,2)
         for n = 1:N
@@ -201,8 +201,8 @@ switch Plot
         axis square
         plotUnity;
 %        axis([min([sqrtVAR(:); SimVarBLS(:)]) max([sqrtVAR(:); SimVarBLS(:)]) min([sqrtVAR(:); SimVarBLS(:)]) max([sqrtVAR(:); SimVarBLS(:)])])
-        xlabel('BIAS & sqrt(Var) (ms)')
-        ylabel('Expected BIAS & sqrt(Var) (ms)')
+        xlabel('BIAS & sqrt(Var) (deg)')
+        ylabel('Expected BIAS & sqrt(Var) (deg)')
 %         title('Actual vs BLS')
         xticks = 0:0.5:1.5;
         xticklabels = {'0','0.5','1.0','1.5'};
@@ -210,67 +210,72 @@ switch Plot
         yticklabels = xticklabels;
         mymakeaxis(gca,'xytitle','Actual vs BLS','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
-        subplot(2,2,2)
+        subplot(1,3,2)
         for n = 1:N
             plot(BIAS(:,n)-SimBiasBLS(:,n),'o','Color',[1 1 1],'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
             q = find(strcmp('CV',slist));
-            plot(BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
+            plot(q,BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
             q = find(strcmp('SM',slist));
-            plot(BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
+            plot(q,BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
         end
         for n = 1:N
             plot(sqrtVAR(:,n)-SimVarBLS(:,n),'s','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
             q = find(strcmp('CV',slist));
-            plot(sqrtVAR(q,n)-SimVarBLS(q,n),'s','Color',colors(q,:))
+            plot(q,sqrtVAR(q,n)-SimVarBLS(q,n),'s','Color',colors(q,:))
             q = find(strcmp('SM',slist));
-            plot(sqrtVAR(q,n)-SimVarBLS(q,n),'s','Color',colors(q,:))
+            plot(q,sqrtVAR(q,n)-SimVarBLS(q,n),'s','Color',colors(q,:))
         end
-        axis square
-        plotUnity;
-        xlabel('BIAS & sqrt(Var) (ms)')
-        ylabel('Expected BIAS & sqrt(Var) (ms)')
-        xticks = 0:0.5:1.5;
-        xticklabels = {'0','0.5','1.0','1.5'};
-        yticks = xticks;
-        yticklabels = xticklabels;
-        mymakeaxis(gca,'xytitle','Actual vs BLS','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
+        %axis square
+        plotHorizontal(0);
+        xlabel('Subject #')
+        ylabel('Model error (deg)')
+        xticks = 1:2:length(slist);
+        xticklabels = strread(num2str(xticks),'%s');
+        axtemp = gca;
+        yticks = axtemp.YTick(1:2:end);
+        yticklabels = axtemp.YTickLabel(1:2:end);ls;
+        mymakeaxis(gca,'xytitle','BLS prediction errors','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
         
 %        figure('Name','Actual vs LNE prediction')
-        subplot(2,2,3)
+        subplot(1,3,3)
         for n = 1:N
             plot(BIAS(:,n),SimBiasAve(:,n),'o','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
-            q = find(strcmp('CV',slist));
-            plot(BIAS(q,n),SimBiasAve(q,n),'o','Color',colors(q,:))
-            q = find(strcmp('SM',slist));
-            plot(BIAS(q,n),SimBiasAve(q,n),'o','Color',colors(q,:))
+            %plot(BIAS(q,n),SimBiasAve(q,n),'o','Color',colors(q,:))
         end
 %        plot([min([BIAS(:); SimBiasAve(:)]) max([BIAS(:); SimBiasAve(:)])],[min([BIAS(:); SimBiasAve(:)]) max([BIAS(:); SimBiasAve(:)])],'k--')
 %        axis square
 %        axis([min([BIAS(:); SimBiasAve(:)]) max([BIAS(:); SimBiasAve(:)]) min([BIAS(:); SimBiasAve(:)]) max([BIAS(:); SimBiasAve(:)])])
-%        xlabel('Bias (ms)')
-%        ylabel('Expected bias (ms)')
+%        xlabel('Bias (deg)')
+%        ylabel('Expected bias (deg)')
         
 %        subplot(1,2,2)
         for n = 1:N
             plot(sqrtVAR(:,n),SimVarAve(:,n),'s','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
-            q = find(strcmp('CV',slist));
-            plot(sqrtVAR(q,n),SimVarAve(q,n),'s','Color',colors(q,:))
-            q = find(strcmp('SM',slist));
-            plot(sqrtVAR(q,n),SimVarAve(q,n),'s','Color',colors(q,:))
+%             q = find(strcmp('CV',slist));
+%             plot(sqrtVAR(q,n),SimVarAve(q,n),'s','Color',colors(q,:))
+%             q = find(strcmp('SM',slist));
+%             plot(sqrtVAR(q,n),SimVarAve(q,n),'s','Color',colors(q,:))
         end
+        q = find(strcmp('CV',slist));
+        plot(BIAS(q,n),SimBiasAve(q,n),'o','Color',colors(q,:))
+        q = find(strcmp('SM',slist));
         plot([min([sqrtVAR(:); SimVarAve(:)]) max([sqrtVAR(:); SimVarAve(:)])],[min([sqrtVAR(:); SimVarAve(:)]) max([sqrtVAR(:); SimVarAve(:)])],'k--')
         axis square
         plotUnity;
 %        axis([min([sqrtVAR(:); SimVarAve(:)]) max([sqrtVAR(:); SimVarAve(:)]) min([sqrtVAR(:); SimVarAve(:)]) max([sqrtVAR(:); SimVarAve(:)])])
-        xlabel('BIAS & sqrt(Var) (ms)')
-        ylabel('Expected BIAS & sqrt(Var) (ms)')
+        xlabel('BIAS & sqrt(Var) (deg)')
+        ylabel('Expected BIAS & sqrt(Var) (deg)')
+        xticks = 0:0.5:1.5;
+        xticklabels = {'0','0.5','1.0','1.5'};
+        yticks = xticks;
+        yticklabels = xticklabels;
         mymakeaxis(gca,'xytitle','Actual vs Averaging','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
-        legend({'$N=1$ BIAS','$N=2$ BIAS','$N=1$ sqrtVAR','$N=2$ sqrtVAR'})
+        legend({'$N=1$ BIAS','$N=2$ BIAS','$N=1$ sqrtVAR','$N=2$ sqrtVAR'},'Location','SouthEast')
          
         % RMSE observed v. model
         fh = figure('Name','Expected v. Actual RMSE');
@@ -283,8 +288,8 @@ switch Plot
         end
         axis equal
         ax(1,:) = axis;
-        xlabel('Observed RMSE (ms)')
-        ylabel('Expected RMSE (ms) under BLS model')
+        xlabel('Observed RMSE (deg)')
+        ylabel('Expected RMSE (deg) under BLS model')
         subplot(1,2,2)
         for n = 1:N
             plot(RMSE(:,n),SimRMSEAve(:,n),'o','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:));
@@ -292,8 +297,8 @@ switch Plot
         end
         axis equal
         ax(2,:) = axis;
-        xlabel('Observed RMSE (ms)')
-        ylabel('Expected RMSE (ms) under Averaging model')
+        xlabel('Observed RMSE (deg)')
+        ylabel('Expected RMSE (deg) under Averaging model')
         legend('$N=1$','$N=2$','Unity','Location','NorthWest')
         
         for i = 1:2
@@ -321,7 +326,7 @@ switch Plot
             hold on
         end
         xlabel('Condition')
-        ylabel('RMSE (ms)')
+        ylabel('RMSE (deg)')
         legend(h,slist)
         ah = gca;
         xticks = [1 2];
@@ -333,7 +338,7 @@ switch Plot
         subplot(1,3,2)
         [n, edges] = histcounts(diff(RMSE,1,2),5);
         h = mybargraph(edges(1:end-1)+(edges(2)-edges(1))/2,n);
-        xlabel('Change in RMSE (ms)')
+        xlabel('Change in RMSE (deg)')
         ylabel('N')
         ah = gca;
         xticks = ah.XTick(1:2:end);
@@ -631,8 +636,8 @@ switch Plot
         ax(1,:) = axis;
         axis square
         titles{1} = '$N=1$';
-        xlabel('Bias for shortest d_s (ms)')
-        ylabel('Bias for longest d_s (ms)')
+        xlabel('Bias for shortest d_s (deg)')
+        ylabel('Bias for longest d_s (deg)')
         legend(h,slist,'Location','SouthEast')
         
         subplot(1,3,2)
@@ -643,8 +648,8 @@ switch Plot
         ax(2,:) = axis;
         axis square
         titles{2} = '$N=2$';
-        xlabel('Bias for shortest d_s (ms)')
-        ylabel('Bias for longest d_s (ms)')
+        xlabel('Bias for shortest d_s (deg)')
+        ylabel('Bias for longest d_s (deg)')
         legend(h,slist,'Location','SouthEast')
         
         subplot(1,3,3)
@@ -656,8 +661,8 @@ switch Plot
         ax(3,:) = axis;
         axis square
         titles{3} = '$N=1$ and $N=2$';
-        xlabel('Bias for shortest d_s (ms)')
-        ylabel('Bias for longest d_s (ms)')
+        xlabel('Bias for shortest d_s (deg)')
+        ylabel('Bias for longest d_s (deg)')
         
         AX = [min(min(ax(:,[1 3]))) max(max(ax(:,[2 4]))) min(min(ax(:,[1 3]))) max(max(ax(:,[2 4])))];
         for i = 1:3

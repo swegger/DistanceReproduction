@@ -885,7 +885,7 @@ WMhat = mean(WM(:,Fit.modelUsed));
 WPhat = mean(WP(:,Fit.modelUsed));
 Bhat = mean(B(:,Fit.modelUsed));
 Ghat = mean(G(:,Fit.modelUsed));
-SIGPhat = mean(SIGP(:,Fit.modelused));
+SIGPhat = mean(SIGP(:,Fit.modelUsed));
 
 % Calculate RMSE, Bias and Variance
 for i = m

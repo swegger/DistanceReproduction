@@ -21,7 +21,7 @@ SaveFlg = 1;
 dt = 0.5;
 
 % Fit parameters
-fparams.fittype = {'BLSbiasedLapse','aveMeasurements'};     % Specifies which models to fit to the data
+fparams.fittype = {'BLS_wm_wp_sigp','aveMeasurements'};     % Specifies which models to fit to the data
 fparams.modelUsed = 1;                                      % Specifies which model to use in subsequent model-based analysis
 fparams.method = 'quad';                                    % Integration method in model fitting
 fparams.init = 'estb';                                      % Initialization values/method for model fitting

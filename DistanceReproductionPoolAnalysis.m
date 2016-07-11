@@ -1,7 +1,7 @@
 function [mdp_in, stddp_in, bias, variance, rmse, WM, WP, B, pval, weber, dsIn,...
     dpIn, trialsIn, ds_in, dp_in, Trials_sorted, estb, ta, G, Llikelihood,...
     BIASs, VARs, lapse, lapseTrials, simbias, simv, RMSEs, LmodelEvidence,...
-    notFitLlikelihood, notFitLmodelEvidence] = DistanceReproductionPoolAnalysis(d,varargin)
+    notFitLlikelihood, notFitLmodelEvidence, SIGP] = DistanceReproductionPoolAnalysis(d,varargin)
 %% DistanceReproductionPoolAnalysis
 %
 %     
@@ -193,6 +193,9 @@ else
     fittype = Fit.fittype;
 end
 for fits = 1:length(fittype)
+    if ~strcmp(fittype{fits},'BLS_wm_wp_sigp')
+        SIGP(:,fits) = NaN;
+    end
     switch fittype{fits}
         case 'BLSbiased'
             switch Fit.method

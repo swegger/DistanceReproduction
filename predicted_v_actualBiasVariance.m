@@ -12,7 +12,7 @@ function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, deltaBV, 
 
 %% Defaults
 DAexpectation_default.methodopts.dx = 0.01;
-DAexpectation_default.dt = 1;
+DAexpectation_default.dt = 0.5;
 PlotOpts_default.colors = [0 0 1; 1 0 0];
 TheoreticalRMSE_default.wmvec = NaN;
 TheoreticalRMSE_default.type = 'EachSubject';
@@ -41,7 +41,6 @@ DAexpectation = Parser.Results.DAexpectation;
 TheoreticalRMSE = Parser.Results.TheoreticalRMSE;
 Plot = Parser.Results.Plot;
 PlotOpts = Parser.Results.PlotOpts;
-
 wmvec = TheoreticalRMSE.wmvec;
 
 %% Load model fits and observed bias and variance for each subject
@@ -63,8 +62,8 @@ for i = 1:length(slist)
     
 %     LLmodels{i} = -notFitLlikelihood;
     LLmodels{i} = -Llikelihood(1:end-1,:);  % TODO fix Llikelihood to be per trial
-    MTP(:,:,i) = mdp_in;
-    STDTP(:,:,i) = stddp_in;
+    MDP(:,:,i) = mdp_in;
+    STDDP(:,:,i) = stddp_in;
 end
 
 %% Simulate the BLS and LNE models for the parameters fit to each subject
@@ -147,8 +146,8 @@ end
 dLL = diff(mLL,1,2);
 
 %% Calculate Bias of shortest vs. longest interval
-shortBias = sqrt((MTP(1,:,:) - repmat(permute(b(:,1),[3 2 1]),[1 2 1]) - dss(1)).^2);
-longBias = sqrt((MTP(end,:,:) - repmat(permute(b(:,1),[3 2 1]),[1 2 1]) - dss(end)).^2);
+shortBias = sqrt((MDP(1,:,:) - repmat(permute(b(:,1),[3 2 1]),[1 2 1]) - dss(1)).^2);
+longBias = sqrt((MDP(end,:,:) - repmat(permute(b(:,1),[3 2 1]),[1 2 1]) - dss(end)).^2);
 
 % shortBias = sqrt((MTP(1,:,:) - dss(1)).^2);
 % longBias = sqrt((MTP(end,:,:) - dss(end)).^2);
@@ -235,7 +234,7 @@ switch Plot
         xticklabels = strread(num2str(xticks),'%s');
         axtemp = gca;
         yticks = axtemp.YTick(1:2:end);
-        yticklabels = axtemp.YTickLabel(1:2:end);ls;
+        yticklabels = axtemp.YTickLabel(1:2:end);
         mymakeaxis(gca,'xytitle','BLS prediction errors','xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
         
@@ -677,7 +676,16 @@ switch Plot
             mymakeaxis(ah,'xytitle',titles{i},'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         end
         
-        
+        figure('Name','Production noise by sample interval')
+        for i = 1:length(slist)
+            plot(dss,STDDP(:,1,i)./dss','o','Color',colors(i,:))
+            hold on
+            plot(dss,STDDP(:,2,i)./dss','o','Color',colors(i,:))
+        end
+        plotHorizontal(0)
+        errorbar(dss',mean(STDDP(:,1,:),3),std(STDDP(:,1,:),[],3),'bo')
+        hold on
+        errorbar(dss',mean(STDDP(:,2,:),3),std(STDDP(:,2,:),[],3),'ro')
         
     case {'No','no','n','N','NO'}
         

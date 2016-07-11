@@ -1,9 +1,9 @@
 function [d] = DistanceReproduction(d,thisfile,varargin)
-%% RSNGcc_Trigger
+%% DistanceReproduction
 %
-%   [d] = RSNGcc_Trigger(d,thisfile)
+%   [d] = DistanceReproduction(d,thisfile)
 %
-%   For extracting data from RSNGcc_Trigger experiments in MWorks
+%   For extracting data from Distance reproduction experiments in MWorks
 %
 %%
 
@@ -117,7 +117,8 @@ else
     Distance_number = getEvents(tempfile,interval_number_codes);
     tags = {'flash_loc','sampleDistance_mu','productionDistance',...
         'target_x_pos','target_y_pos','correct','win_fraction','set_selection',...
-        'cue_conflict_dir','DistanceReproduction_trials','Distance_N'};
+        'cue_conflict_dir','DistanceReproduction_trials','Distance_N',...
+        'productionX','productionY'};
     
                                                  % 3) flash_loc
                                                  % 4) sampleDistance_mu
@@ -130,6 +131,8 @@ else
                                                  % 11) cue_conflict_dir
                                                  % 12) DistanceReproduction_trials
                                                  % 13) Distance_N
+                                                 % 14) productionX
+                                                 % 15) productionY
                                                  
     ForceDouble = false(length(tags),1);
     ForceDouble(3) = true;
@@ -241,40 +244,54 @@ else
             end
             
             if ~isempty(EDATA{5}{i})
-                d.dp{irun}(i,:) = [i EDATA{5}{i}(2)];                % prodcution time
+                d.dp{irun}(i,:) = [i EDATA{5}{i}(2)];                % prodcution distance
             else
                 d.dp{irun}(i,:) = [i NaN];
             end
             
             if ~isempty(EDATA{6}{i})
-                d.target_x{irun}(i,:) = [i EDATA{6}{i}(2)];          % putative time of set2 on
+                d.target_x{irun}(i,:) = [i EDATA{6}{i}(2)];          % location of the target, x
             else
                 d.target_x{irun}(i,:) = [i NaN];
             end
             
             if ~isempty(EDATA{7}{i})
-                d.target_y{irun}(i,:) = [i EDATA{7}{i}(2)];          % putative time of set2 on
+                d.target_y{irun}(i,:) = [i EDATA{7}{i}(2)];          % location of the target, y
             else
                 d.target_y{irun}(i,:) = [i NaN];
             end
             
             if ~isempty(EDATA{8}{i})
-                d.correct{irun}(i,:) = [i EDATA{8}{i}(2)];          % putative time of set2 on
+                d.correct{irun}(i,:) = [i EDATA{8}{i}(2)];          % correct
             else
                 d.correct{irun}(i,:) = [i NaN];
             end
             
             if ~isempty(EDATA{9}{i})
-                d.winFraction{irun}(i,:) = [i EDATA{9}{i}(2)];          % putative time of set2 on
+                d.winFraction{irun}(i,:) = [i EDATA{9}{i}(2)];          % window fraction
             else
                 d.winFraction{irun}(i,:) = [i NaN];
             end
             
             if ~isempty(EDATA{13}{i})
-                d.Distance_N{irun}(i,:) = [i EDATA{13}{i}(2)];          % putative time of set2 on
+                d.Distance_N{irun}(i,:) = [i EDATA{13}{i}(2)];          % distance nubmer
             else
                 d.Distance_N{irun}(i,:) = [i NaN];
             end
+            
+            if ~isempty(EDATA{14}{i})
+                d.productionX{irun}(i,:) = [i EDATA{14}{i}(2)];          % Final, onscreen production location, x
+            else
+                d.productionX{irun}(i,:) = [i NaN];
+            end
+            
+            if ~isempty(EDATA{15}{i})
+                d.productionY{irun}(i,:) = [i EDATA{15}{i}(2)];          % Final, onscreen production location, y
+            else
+                d.productionY{irun}(i,:) = [i NaN];
+            end
+            
+            
             
             d.dsMin{irun}(i,:) = [i dsMin(1).data];                     % minimum sample time
             d.dsMax{irun}(i,:) = [i dsMax(1).data];                     % maximum sample time
@@ -284,6 +301,7 @@ else
             d.Distance_min{irun}(i,:) = [i Distance_min(1).data];
             d.Distance_max{irun}(i,:) = [i Distance_max(1).data];
             d.Distance_number{irun}(i,:) = [i Distance_number(1).data];
+            
         end
     end
     clear EDATA

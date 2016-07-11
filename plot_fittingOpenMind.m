@@ -70,10 +70,10 @@ for i = 1:length(list)
             allts = [allts; dsIn{i}(~lapseTrials{i})];
             alltp = [alltp; dpIn{i}(~lapseTrials{i})];
         end
-        ax = [10 22 10 22]; %[min(allts)-100 max(allts)+100 min(alltp)-100 max(alltp)+100];
-        xticks = ax(1)+100:200:ax(2)-100;
+        ax = [12 20 12 20]; %[min(allts)-100 max(allts)+100 min(alltp)-100 max(alltp)+100];
+        xticks = ax(1)+1:2:ax(2)-1;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(3)+100:200:ax(4)-100;
+        yticks = ax(3)+1:2:ax(4)-1;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             h(i) = subplot(1,length(m),i);
@@ -98,10 +98,10 @@ for i = 1:length(list)
             %        title(titles{i});
         end
         %    tpmax = max(alltp);
-        text(ax(1)+10, ax(4)-10, ['$w_m = ' num2str(wm) '$'], 'Interpreter','latex')
-        text(ax(1)+10, ax(4)-60, ['$w_p = ' num2str(wp) '$'], 'Interpreter','latex')
-        text(ax(1)+10, ax(4)-110, ['$b = ' num2str(b) '$'], 'Interpreter','latex')
-        text(ax(1)+10, ax(4)-160, ['$\lambda = ' num2str(L) '$'], 'Interpreter','latex')
+        text(ax(1)+1, ax(4)-1, ['$w_m = ' num2str(wm) '$'], 'Interpreter','latex')
+        text(ax(1)+1, ax(4)-6, ['$w_p = ' num2str(wp) '$'], 'Interpreter','latex')
+        text(ax(1)+1, ax(4)-11, ['$b = ' num2str(b) '$'], 'Interpreter','latex')
+        text(ax(1)+1, ax(4)-16, ['$\lambda = ' num2str(L) '$'], 'Interpreter','latex')
         
         plotind = 1;
         for i = m
@@ -117,8 +117,8 @@ for i = 1:length(list)
             axis(ax)
             %plot(DSS(1)-200:DSS(end)+200,DSS(1)-200:DSS(end)+200,'k')
             axis square
-            xlabel('d_s(ms)')
-            ylabel('d_p (ms)')
+            xlabel('d_s (deg)')
+            ylabel('d_p (deg)')
             mymakeaxis(gca,'xytitle',titles{i},'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         end
         
@@ -141,10 +141,10 @@ for i = 1:length(list)
     if any(strcmp('ds_v_dp_1ax',FigureTypes))
         fH3 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-        ax = [10 22 10 22];
-        xticks = ax(1)+2:4:ax(2)-2;
+        ax = [12 20 12 20];
+        xticks = ax(1)+2:2:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(1)+2:4:ax(2)-2;
+        yticks = ax(1)+2:2:ax(2)-2;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             axis(ax);
@@ -167,8 +167,8 @@ for i = 1:length(list)
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
         axis square
-        xlabel('d_s(ms)')
-        ylabel('d_p (ms)')
+        xlabel('d_s (deg)')
+        ylabel('d_p (deg)')
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')
@@ -200,7 +200,7 @@ for i = 1:length(list)
         % Replot with the expectations of the alternative model
         fH3_2 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-         ax = [10 22 10 22];
+         ax = [12 20 12 20];
         xticks = ax(1)+2:4:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
         yticks = ax(1)+2:4:ax(2)-2;
@@ -226,8 +226,8 @@ for i = 1:length(list)
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
         axis square
-        xlabel('d_s(ms)')
-        ylabel('d_p (ms)')
+        xlabel('d_s (deg)')
+        ylabel('d_p (deg)')
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')

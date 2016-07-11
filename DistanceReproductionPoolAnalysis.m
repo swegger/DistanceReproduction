@@ -885,6 +885,7 @@ WMhat = mean(WM(:,Fit.modelUsed));
 WPhat = mean(WP(:,Fit.modelUsed));
 Bhat = mean(B(:,Fit.modelUsed));
 Ghat = mean(G(:,Fit.modelUsed));
+SIGPhat = mean(SIGP(:,Fit.modelused));
 
 % Calculate RMSE, Bias and Variance
 for i = m
@@ -982,6 +983,15 @@ switch DAexpectation.method
                     method_opts.dx = 0.01;
                     ta(:,i) = ta_expectation3(ds_vec,WMhat,i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(dss) max(dss)]);
                     [~, ~, simbias(i), simv(i), simrmse(i)] = ta_expectation3(dss',WMhat,i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',WPhat,'Support',[min(dss) max(dss)]);
+                   
+                case 'BLS_wm_wp_sigp'
+                    method_opts.dx = 0.01;
+                    if i >= 4
+                        ta(:,i) = NaN(size(ds_vec));
+                    else
+                        ta(:,i) = ta_expectation3(ds_vec,WMhat,i,dt,'Type','BLS_wm_wp_sigp','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'sigp',SIGPhat,'Support',[min(dss) max(dss)]);
+                    end
+                    [~, ~, simbias(i), simv(i)] = ta_expectation3(dss',WMhat,i,dt,'method','numerical','trials',simtrials,'wp',WPhat,'Support',[min(dss) max(dss)]);
                     
                 otherwise
                     ta = NaN;

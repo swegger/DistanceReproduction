@@ -439,7 +439,7 @@ for fits = 1:length(fittype)
                     % Identify lapse trials
                     if fits == Fit.modelUsed;
                         for i = m
-                            [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp_sigp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits)),mean(SIG,i);
+                            [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp_sigp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits)),mean(SIGP(:,fits)),i);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
                             lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
                         end

@@ -432,7 +432,7 @@ for fits = 1:length(fittype)
                         fitted(i) = any(i == Fit.trialtypes);
                     end
                     if any(~fitted)
-                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),mean(SIG(:,fits)),...
                             'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
@@ -485,7 +485,7 @@ for fits = 1:length(fittype)
                         fitted(i) = any(i == Fit.trialtypes);
                     end
                     if any(~fitted)
-                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),mean(SIG(:,fits)),...
                             'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
@@ -594,7 +594,7 @@ for fits = 1:length(fittype)
                         fitted(i) = any(i == Fit.trialtypes);
                     end
                     if any(~fitted)
-                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLSbiasedLapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = MAPbiasedLapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
                             'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
                     else
                         notFitLlikelihood(:,fits) = NaN;

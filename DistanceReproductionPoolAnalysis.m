@@ -855,11 +855,11 @@ for fits = 1:length(fittype)
                     if isstr(init)
                         switch init
                             case 'estb'
-                                init = [0.1 0.06 NaN 0.05];      % Default initial search but with estimate of baseline
+                                init = [0.1 0.06 NaN 0.05 0];      % Default initial search but with estimate of baseline
                                 estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
                                 init(3) = estb(i);
                             case 'default'
-                                init = [0.1 0.06 0 0.05];
+                                init = [0.1 0.06 0 0.05 0];
                         end
                     end
                     dt = Fit.dx;
@@ -905,11 +905,11 @@ for fits = 1:length(fittype)
                     if isstr(init)
                         switch init
                             case 'estb'
-                                init = [0.1 0.06 NaN];      % Default initial search but with estimate of baseline
+                                init = [0.1 0.06 NaN 0];      % Default initial search but with estimate of baseline
                                 estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
                                 init(3) = estb(i);
                             case 'default'
-                                init = [0.1 0.06 0];
+                                init = [0.1 0.06 0 0];
                         end
                     end
                     dt = Fit.dx;

@@ -193,7 +193,7 @@ else
     fittype = Fit.fittype;
 end
 for fits = 1:length(fittype)
-    if ~strcmp(fittype{fits},'BLS_wm_wp_sigp') || ~strcmp(fittype{fits},'aveMeas_wm_wp_sigp')
+    if ~strcmp(fittype{fits},'BLS_wm_wp_sigp') && ~strcmp(fittype{fits},'aveMeas_wm_wp_sigp')
         SIGP(:,fits) = NaN;
     end
     switch fittype{fits}

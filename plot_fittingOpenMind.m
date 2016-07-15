@@ -191,6 +191,11 @@ for i = 1:length(list)
                     taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
                 end
                 
+            case 'aveMeas_wm_wp_sigp'
+                for i = m
+                    taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'sigp',mean(SIGP(:,~(Fit.modelUsed == [1 2]))),'Support',[min(DSS) max(DSS)]);
+                end
+                
             case 'MAPbiasedLapse'
                 for i = m
                     taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);

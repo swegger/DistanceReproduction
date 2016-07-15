@@ -193,7 +193,7 @@ else
     fittype = Fit.fittype;
 end
 for fits = 1:length(fittype)
-    if ~strcmp(fittype{fits},'BLS_wm_wp_sigp')
+    if ~strcmp(fittype{fits},'BLS_wm_wp_sigp') && ~strcmp(fittype{fits},'aveMeas_wm_wp_sigp')
         SIGP(:,fits) = NaN;
     end
     switch fittype{fits}
@@ -432,7 +432,7 @@ for fits = 1:length(fittype)
                         fitted(i) = any(i == Fit.trialtypes);
                     end
                     if any(~fitted)
-                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),mean(SIG(:,fits)),...
                             'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
@@ -485,7 +485,7 @@ for fits = 1:length(fittype)
                         fitted(i) = any(i == Fit.trialtypes);
                     end
                     if any(~fitted)
-                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),mean(SIG(:,fits)),...
                             'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
@@ -594,7 +594,7 @@ for fits = 1:length(fittype)
                         fitted(i) = any(i == Fit.trialtypes);
                     end
                     if any(~fitted)
-                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLSbiasedLapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = MAPbiasedLapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
                             'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
@@ -845,6 +845,115 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+        
+        case 'aveMeas_wm_wp_sigp'
+            switch Fit.method
+                case 'quad'
+                    % Fit the aveMeas model with bias and lapses to the data
+                    disp('Fitting measurement averaging model with bias and lapses model to the data using Simpsons quadrature...')
+                    init = Fit.init;
+                    if isstr(init)
+                        switch init
+                            case 'estb'
+                                init = [0.1 0.06 NaN 0.05 0];      % Default initial search but with estimate of baseline
+                                estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
+                                init(3) = estb(i);
+                            case 'default'
+                                init = [0.1 0.06 0 0.05 0];
+                        end
+                    end
+                    dt = Fit.dx;
+                    LapseSupport = [MinMaxDp(1) max(dss)+MinMaxDp(2)];
+                    [WM(:,fits), WP(:,fits), B(:,fits), lapse(:,fits), SIGP(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = aveMeas_wm_wp_sigp_b_lapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(dss) max(dss) dt],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
+                        'CrossValidation',Fit.CrossValidation,'ModelEvidence',Fit.ModelEvidence);
+                    
+                    % Find likelihood of model on left out condition, if it exists
+                    for i = m
+                        fitted(i) = any(i == Fit.trialtypes);
+                    end
+                    if any(~fitted)
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = aveMeas_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
+                    else
+                        notFitLlikelihood(:,fits) = NaN;
+                        notFitLmodelEvidence(:,fits) = NaN;
+                    end
+                    
+                    % Identify lapse trials
+                    if fits == Fit.modelUsed;
+                        for i = m
+                            estimator.type = 'weightedMean';
+                            estiamtor.weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
+                            [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp_sigp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fids)),mean(WP(:,fids)),mean(SIGP(:,fids)),i,'estimator',estimator);
+                            loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
+                            lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
+                        end
+                    end
+                    
+                    % Recalculate mdp and stddp
+                    for i = m
+                        for ii = 1:length(dss)
+                            mdp_in(ii,i) = mean(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
+                            stddp_in(ii,i) = std(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
+                        end
+                        errors{i} = dsIn{i}(~lapseTrials{i}) - dpIn{i}(~lapseTrials{i});
+                    end
+                    
+                case 'quad_batch'
+                    disp('Fitting measurement averaging model with bias model to the data using Simpsons quadrature...')
+                    init = Fit.init;
+                    if isstr(init)
+                        switch init
+                            case 'estb'
+                                init = [0.1 0.06 NaN 0];      % Default initial search but with estimate of baseline
+                                estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
+                                init(3) = estb(i);
+                            case 'default'
+                                init = [0.1 0.06 0 0];
+                        end
+                    end
+                    dt = Fit.dx;
+                    if isfield(varargin{fitnum+1},'batchsize')
+                        batchsize = varargin{fitnum+1}.batchsize;
+                    else
+                        batchsize = 1000000;
+                    end
+                    LapseSupport = [MinMaxDp(1) max(dss)+MinMaxDp(2)];
+                    [WM(:,fits), WP(:,fits), B(:,fits), lapse(:,fits), SIGP(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = aveMeas_wm_wp_sigp_b_lapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(dss) max(dss) dt batchsize],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
+                        'CrossValidation',Fit.CrossValidation,'ModelEvidence',Fit.ModelEvidence);
+                    
+                    % Find likelihood of model on left out condition, if it exists
+                    for i = m
+                        fitted(i) = any(i == Fit.trialtypes);
+                    end
+                    if any(~fitted)
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = aveMeas_wm_wp_sigp_b_lapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt]); 
+                    else
+                        notFitLlikelihood(:,fits) = NaN;
+                        notFitLmodelEvidence(:,fits) = NaN;
+                    end
+                    
+                    % Identify lapse trials
+                    if fits == Fit.modelUsed;
+                        for i = m
+                            estimator.type = 'weightedMean';
+                            estiamtor.weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
+                            [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp_sigp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits)),mean(SIGP(:,fits)),i,'estimator',estimator);
+                            loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
+                            lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
+                        end
+                    end
+                    
+                    % Recalculate mdp and stddp
+                    for i = m
+                        for ii = 1:length(dss)
+                            mdp_in(ii,i) = mean(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
+                            stddp_in(ii,i) = std(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
+                        end
+                        errors{i} = dsIn{i}(~lapseTrials{i}) - dpIn{i}(~lapseTrials{i});
+                    end
+            end
             
         case 'none'
             WM(:,fits) = NaN(m(end),1);
@@ -885,7 +994,7 @@ WMhat = mean(WM(:,Fit.modelUsed));
 WPhat = mean(WP(:,Fit.modelUsed));
 Bhat = mean(B(:,Fit.modelUsed));
 Ghat = mean(G(:,Fit.modelUsed));
-SIGPhat = mean(SIGP(:,Fit.modelused));
+SIGPhat = mean(SIGP(:,Fit.modelUsed));
 
 % Calculate RMSE, Bias and Variance
 for i = m
@@ -991,7 +1100,13 @@ switch DAexpectation.method
                     else
                         ta(:,i) = ta_expectation3(ds_vec,WMhat,i,dt,'Type','BLS_wm_wp_sigp','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'sigp',SIGPhat,'Support',[min(dss) max(dss)]);
                     end
-                    [~, ~, simbias(i), simv(i)] = ta_expectation3(dss',WMhat,i,dt,'method','numerical','trials',simtrials,'wp',WPhat,'Support',[min(dss) max(dss)]);
+                    [~, ~, simbias(i), simv(i)] = ta_expectation3(dss',WMhat,i,dt,'Type','BLS_wm_wp_sigp','method','numerical','trials',simtrials,'wp',WPhat,'sigp',SIGPhat,'Support',[min(dss) max(dss)]);
+                    
+                    
+                case 'aveMeas_wm_wp_sigp'
+                    method_opts.dx = 0.01;
+                    ta(:,i) = ta_expectation3(ds_vec,WMhat,i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'sigp',SIGPhat,'Support',[min(dss) max(dss)]);
+                    [~, ~, simbias(i), simv(i), simrmse(i)] = ta_expectation3(dss',WMhat,i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',WPhat,'sigp',SIGPhat,'Support',[min(dss) max(dss)]);
                     
                 otherwise
                     ta = NaN;

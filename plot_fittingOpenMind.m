@@ -20,7 +20,7 @@ addParameter(Parser,'SaveOpts',Save_default)
 addParameter(Parser,'CloseFigs',false)
 addParameter(Parser,'FigureTypes',{'ds_v_dp_1ax','RMSE','SquaredErrors'})
 addParameter(Parser,'Permutations',100);
-addParameter(Parser,'DSS',[14:1:18])
+addParameter(Parser,'DSS',14:1:18)
 
 parse(Parser,list,varargin{:})
 

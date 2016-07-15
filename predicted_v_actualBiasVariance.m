@@ -75,7 +75,7 @@ for i = 1:length(slist)
         SimBiasBLS(i,j) = sqrt(simbias);
         SimVarBLS(i,j) = sqrt(simv);
         
-        [~, ~, simbias, simv, SimRMSEAve(i,j)] = ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements');
+        [~, ~, simbias, simv, SimRMSEAve(i,j)] = ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
         SimBiasAve(i,j) = sqrt(simbias);
         SimVarAve(i,j) = sqrt(simv);
     end
@@ -89,7 +89,7 @@ switch TheoreticalRMSE.type
                 if ~isnan(wmvec)
                     for k = 1:length(wmvec)
                         [~, ~, ~, ~, rmseBLS(k,j,i)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,1),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
-                        [~, ~, ~, ~, rmseAve(k,j,i)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements');
+                        [~, ~, ~, ~, rmseAve(k,j,i)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
                     end
                 end
             end
@@ -100,7 +100,7 @@ switch TheoreticalRMSE.type
             for j = 1:N
                 for k = 1:length(wmvec)
                     [~, ~, ~, ~, rmseBLS(k,j)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',mean(wp(:,1)),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
-                    [~, ~, ~, ~, rmseAve(k,j)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',mean(wp(:,2)),'Support',[min(dss) max(dss)],'Type','aveMeasurements');
+                    [~, ~, ~, ~, rmseAve(k,j)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',mean(wp(:,2)),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
                 end
             end
         end
@@ -110,7 +110,7 @@ switch TheoreticalRMSE.type
             for j = 1:N
                 for k = 1:length(wmvec)
                     [~, ~, ~, ~, rmseBLS(k,j)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',min(wp(:,1)),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
-                    [~, ~, ~, ~, rmseAve(k,j)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',min(wp(:,2)),'Support',[min(dss) max(dss)],'Type','aveMeasurements');
+                    [~, ~, ~, ~, rmseAve(k,j)] = ta_expectation3(dss',wmvec(k),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',min(wp(:,2)),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
                 end
             end
         end        

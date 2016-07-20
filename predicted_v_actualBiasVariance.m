@@ -29,6 +29,7 @@ addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling th
 addParameter(Parser,'TheoreticalRMSE',TheoreticalRMSE_default)
 addParameter(Parser,'Plot','Yes')
 addParameter(Parser,'PlotOpts',PlotOpts_default)
+addParameter(Parser,'simN',100) % Number of simulations to run
 
 parse(Parser,slist,varargin{:})
 
@@ -42,6 +43,7 @@ TheoreticalRMSE = Parser.Results.TheoreticalRMSE;
 Plot = Parser.Results.Plot;
 PlotOpts = Parser.Results.PlotOpts;
 wmvec = TheoreticalRMSE.wmvec;
+simN = Parser.Results.simN;
 
 %% Load model fits and observed bias and variance for each subject
 
@@ -71,13 +73,19 @@ end
 
 for i = 1:length(slist)
     for j = 1:N
-        [~, ~, simbias, simv, SimRMSEBLS(i,j)] = ta_expectation3(dss',wm(i,1),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,1),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
-        SimBiasBLS(i,j) = sqrt(simbias);
-        SimVarBLS(i,j) = sqrt(simv);
+        for simi = 1:simN
+            [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ta_expectation3(dss',wm(i,1),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,1),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
+        end
+        SimRMSEBLS(i,j) = mean(simRMSE);
+        SimBiasBLS(i,j) = sqrt(mean(simbias));
+        SimVarBLS(i,j) = sqrt(mean(simv));
         
-        [~, ~, simbias, simv, SimRMSEAve(i,j)] = ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
-        SimBiasAve(i,j) = sqrt(simbias);
-        SimVarAve(i,j) = sqrt(simv);
+        for simi = 1:simN
+            [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
+        end
+        SimRMSEAve(i,j) = mean(simRMSE);
+        SimBiasAve(i,j) = sqrt(mean(simbias));
+        SimVarAve(i,j) = sqrt(mean(simv));
     end
 end
 

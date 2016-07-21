@@ -77,6 +77,7 @@ for i = 1:length(slist)
             [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ta_expectation3(dss',wm(i,1),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,1),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
         end
         SimRMSEBLS(i,j) = mean(simRMSE);
+        SimRMSEBLS_std(i,j) = std(simRMSE);
         SimBiasBLS(i,j) = sqrt(mean(simbias));
         SimVarBLS(i,j) = sqrt(mean(simv));
         
@@ -84,6 +85,7 @@ for i = 1:length(slist)
             [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
         end
         SimRMSEAve(i,j) = mean(simRMSE);
+        SimRMSEAve_std(i,j) = std(simRMSE);
         SimBiasAve(i,j) = sqrt(mean(simbias));
         SimVarAve(i,j) = sqrt(mean(simv));
     end
@@ -382,8 +384,9 @@ switch Plot
         fh.Units = 'normalized';
         fh.Position = [0.0688 0.4125 0.8365 0.5017];
         subplot(1,3,1)
-        plot([1 2],[1 1],'k')
+        ph = myPatch([1 2]',[1 1]',[1 1]'*max(SimRMSEBLS_std(:,2)./SimRMSEBLS(:,2)));
         hold on
+        plot([1 2],[1 1],'k')
         for i = 1:length(slist)
             h(i) = plot([1 2],RMSE(i,:)./repmat(SimRMSEBLS(i,2),1,2),'-o','Color',colors(i,:));
             set(h(i),'MarkerFaceColor',h(i).Color)
@@ -395,11 +398,13 @@ switch Plot
         T{1} = 'Normalized to BLS model expectation';
         text(1,1.002,'Optimal performance')
         legend(h,slist)
+        axis tight
         ax(1,:) = axis;
        
         subplot(1,3,2)
-        plot([1 2],[1 1],'k')
+        ph = myPatch([1 2]',[1 1]',[1 1]'*max(SimRMSEAve_std(:,2)./SimRMSEAve(:,2)));
         hold on
+        plot([1 2],[1 1],'k')
         for i = 1:length(slist)
             h(i) = plot([1 2],RMSE(i,:)./repmat(SimRMSEAve(i,2),1,2),'-o');
             set(h(i),'MarkerFaceColor',h(i).Color)
@@ -411,6 +416,7 @@ switch Plot
         T{2} = 'Normalized to LNE model expectation';
         text(1,1.002,'Averaging performance')
         legend(h,slist)
+        axis tight
         ax(2,:) = axis;
         
         for i = 1:2

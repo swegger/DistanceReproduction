@@ -40,6 +40,7 @@ addParameter(Parser,'ConflictType','equal')     % For experiments with cue confl
 addParameter(Parser,'DiffTolerance',2/60)       % Tolerance for difference in sample distances before calling it conflict
 addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling the calculation of the expected value of aim distances under a model
 addParameter(Parser,'OutlierRejectionRounds',3)
+addParameter(Parser,'viewDistance',310) % Programmed viewing distance; for converting deg to mm
 
 parse(Parser,d,varargin{:})
 
@@ -59,6 +60,7 @@ ConflictType = Parser.Results.ConflictType;
 DiffTolerance = Parser.Results.DiffTolerance;
 DAexpectation = Parser.Results.DAexpectation;
 OutlierRejectionRounds = Parser.Results.OutlierRejectionRounds;
+viewDistance = Parser.Results.viewDistance;
 
 % Check to see if run information was provided
 if isnan(runs)
@@ -94,6 +96,12 @@ end
 for i = m
     % Grab the appropriate data
     [ds1{i}, ds2{i}, ds{i}, dp{i}, ~, ~, Trials{i}, correct{i}, ~, ~, ~, N{i}] = DistanceReproduction_pooldata(d,'runs',runs,'Distance_N',i,'trialWin',trialWin);
+    
+    % Convert from deg to mm
+    ds1{i} = viewDistance*tand(ds1{i});
+    ds2{i} = viewDistance*tand(ds2{i});
+    ds{i} = viewDistance*tand(ds{i});
+    dp{i} = viewDistance*tand(dp{i});
     
     % Find data associated with the desired conflict type
     switch ConflictType

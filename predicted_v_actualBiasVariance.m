@@ -30,6 +30,7 @@ addParameter(Parser,'TheoreticalRMSE',TheoreticalRMSE_default)
 addParameter(Parser,'Plot','Yes')
 addParameter(Parser,'PlotOpts',PlotOpts_default)
 addParameter(Parser,'simN',100) % Number of simulations to run
+addParameter(Parser,'viewDistance',310) % Programmed viewing distance; for converting deg to mm
 
 parse(Parser,slist,varargin{:})
 
@@ -44,6 +45,9 @@ Plot = Parser.Results.Plot;
 PlotOpts = Parser.Results.PlotOpts;
 wmvec = TheoreticalRMSE.wmvec;
 simN = Parser.Results.simN;
+viewDistance = Parser.Results.viewDistance;
+
+dss = viewDistance*tand(dss);
 
 %% Load model fits and observed bias and variance for each subject
 

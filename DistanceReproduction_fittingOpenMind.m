@@ -41,7 +41,7 @@ fparams.ModelEvidence.paramLimits = [0.0001 1;...
                              0 1;...
                              0 100];
 fparams.ModelEvidence.integrationMethod = 'quad';
-fparams.ModelEvidence.integrationOptions.dx = 0.05;
+fparams.ModelEvidence.integrationOptions.dx = 0.5;
 fparams.ModelEvidence.OpenMind = 1;
 
 % Bias/Variance bootstrap parameters

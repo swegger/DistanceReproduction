@@ -98,10 +98,10 @@ for i = m
     [ds1{i}, ds2{i}, ds{i}, dp{i}, ~, ~, Trials{i}, correct{i}, ~, ~, ~, N{i}] = DistanceReproduction_pooldata(d,'runs',runs,'Distance_N',i,'trialWin',trialWin);
     
     % Convert from deg to mm
-    ds1{i} = viewDistance*tand(ds1{i});
-    ds2{i} = viewDistance*tand(ds2{i});
-    ds{i} = viewDistance*tand(ds{i});
-    dp{i} = viewDistance*tand(dp{i});
+    ds1{i} = viewDistance*( tand(d.fix_y{i}(1,2)) - tand(d.fix_y{i}(1,2)-ds1{i}) );
+    ds2{i} = viewDistance*( tand(d.fix_y{i}(1,2)) - tand(d.fix_y{i}(1,2)-ds2{i}) );
+    ds{i} = viewDistance*( tand(d.fix_y{i}(1,2)) - tand(d.fix_y{i}(1,2)-ds{i}) );
+    dp{i} = viewDistance*( tand(d.fix_y{i}(1,2)) - tand(d.fix_y{i}(1,2)-dp{i}) );
     
     % Find data associated with the desired conflict type
     switch ConflictType

@@ -18,8 +18,9 @@ MinMax = [2 30];
 outlier = Inf;
 FitAll = 1;
 SaveFlg = 1;
-dt = 0.5;
+dt = 1;
 viewDistance = 310;
+fixPos = 13;
 
 % Fit parameters
 fparams.fittype = {'BLS_wm_wp_sigp','aveMeas_wm_wp_sigp'};     % Specifies which models to fit to the data
@@ -51,7 +52,7 @@ bootparams.nsamps = 500;
 % Parameters for calculating expected aim times
 DAexpectation.method = 'numerical';
 DAexpectation.trialtypes = [1 2];
-DAexpectation.ds_vec = viewDistance*tand(13:0.1:19)';
+DAexpectation.ds_vec = viewDistance*(tandn(fixPos) - tand(fixPos - (13:0.1:19)'));
 DAexpectation.simtrials = 10000;
 
 runs = runmap{SubjectN};

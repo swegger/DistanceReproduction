@@ -12,7 +12,7 @@ function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, deltaBV, 
 
 %% Defaults
 DAexpectation_default.methodopts.dx = 0.01;
-DAexpectation_default.dt = 0.5;
+DAexpectation_default.dt = 2.5;%0.5;
 PlotOpts_default.colors = [0 0 1; 1 0 0];
 TheoreticalRMSE_default.wmvec = NaN;
 TheoreticalRMSE_default.type = 'EachSubject';
@@ -47,8 +47,9 @@ PlotOpts = Parser.Results.PlotOpts;
 wmvec = TheoreticalRMSE.wmvec;
 simN = Parser.Results.simN;
 viewDistance = Parser.Results.viewDistance;
+fixPos = Parser.Results.fixPos;
 
-dss = viewDistance*(tand(fixPos) - tand(fixPos - dss));
+%dss = viewDistance*(tand(fixPos) - tand(fixPos - dss));
 
 %% Load model fits and observed bias and variance for each subject
 
@@ -276,9 +277,9 @@ switch Plot
 %             q = find(strcmp('SM',slist));
 %             plot(sqrtVAR(q,n),SimVarAve(q,n),'s','Color',colors(q,:))
         end
-        q = find(strcmp('CV',slist));
+        q = find(strcmp('JW',slist));
         plot(BIAS(q,n),SimBiasAve(q,n),'o','Color',colors(q,:))
-        q = find(strcmp('SM',slist));
+        q = find(strcmp('SWE',slist));
         plot([min([sqrtVAR(:); SimVarAve(:)]) max([sqrtVAR(:); SimVarAve(:)])],[min([sqrtVAR(:); SimVarAve(:)]) max([sqrtVAR(:); SimVarAve(:)])],'k--')
         axis square
         plotUnity;
@@ -447,7 +448,7 @@ switch Plot
             'ko','MarkerFaceColor',[0 0 0],'MarkerSize',10);
         ax = axis;
         axis([1-0.25 2+0.25 ax(3:4)])
-        plotHorizontal(1)
+        plotHorizontal(1);
         xlabel('Model')
         ylabel('\DeltaRMSE_{obs} / \DeltaRMSE_{model}')
         axis square
@@ -466,7 +467,7 @@ switch Plot
             'ko','MarkerFaceColor',[0 0 0],'MarkerSize',10);
         ax = axis;
         axis([1-0.25 2+0.25 ax(3:4)])
-        plotHorizontal(1)
+        plotHorizontal(1);
         xlabel('Model')
         ylabel('\DeltaBIAS_{obs} / \DeltaBIAS_{model}')
         axis square
@@ -485,7 +486,7 @@ switch Plot
             'ko','MarkerFaceColor',[0 0 0],'MarkerSize',10);
         ax = axis;
         axis([1-0.25 2+0.25 ax(3:4)])
-        plotHorizontal(1)
+        plotHorizontal(1);
         xlabel('Model')
         ylabel('\Delta(VAR)^{1/2}_{obs} / \Delta(VAR)^{1/2}_{model}')
         axis square
@@ -702,7 +703,7 @@ switch Plot
             hold on
             plot(dss,STDDP(:,2,i)./dss','o','Color',colors(i,:))
         end
-        plotHorizontal(0)
+        plotHorizontal(0);
         errorbar(dss',mean(STDDP(:,1,:),3),std(STDDP(:,1,:),[],3),'bo')
         hold on
         errorbar(dss',mean(STDDP(:,2,:),3),std(STDDP(:,2,:),[],3),'ro')

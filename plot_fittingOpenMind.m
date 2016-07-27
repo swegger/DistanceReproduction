@@ -21,6 +21,8 @@ addParameter(Parser,'CloseFigs',false)
 addParameter(Parser,'FigureTypes',{'ds_v_dp_1ax','RMSE','SquaredErrors'})
 addParameter(Parser,'Permutations',100);
 addParameter(Parser,'DSS',14:1:18)
+addParameter(Parser,'viewDistance',310) % Programmed viewing distance; for converting deg to mm
+addParameter(Parser,'fixPos',13)    % Fixation position
 
 parse(Parser,list,varargin{:})
 
@@ -30,6 +32,10 @@ CloseFigs = Parser.Results.CloseFigs;
 FigureTypes = Parser.Results.FigureTypes;
 Permutations = Parser.Results.Permutations;
 DSS = Parser.Results.DSS;
+viewDistance = Parser.Results.viewDistance;
+fixPos = Parser.Results.fixPos;
+
+DSS = viewDistance*( tand(fixPos) - tand(fixPos-DSS) );
 
 %% Plot the data
 for i = 1:length(list)
@@ -141,7 +147,7 @@ for i = 1:length(list)
     if any(strcmp('ds_v_dp_1ax',FigureTypes))
         fH3 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-        ax = [12 20 12 20];
+        ax = [60 110 60 110];%[12 20 12 20];
         xticks = ax(1)+2:2:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
         yticks = ax(1)+2:2:ax(2)-2;
@@ -205,7 +211,7 @@ for i = 1:length(list)
         % Replot with the expectations of the alternative model
         fH3_2 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-         ax = [12 20 12 20];
+        ax = [60 110 60 110]; %[12 20 12 20];
         xticks = ax(1)+2:4:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
         yticks = ax(1)+2:4:ax(2)-2;

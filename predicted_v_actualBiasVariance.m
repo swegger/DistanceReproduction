@@ -31,6 +31,7 @@ addParameter(Parser,'Plot','Yes')
 addParameter(Parser,'PlotOpts',PlotOpts_default)
 addParameter(Parser,'simN',100) % Number of simulations to run
 addParameter(Parser,'viewDistance',310) % Programmed viewing distance; for converting deg to mm
+addParameter(Parser,'fixPos',13)    % Programed fixation position, in deg
 
 parse(Parser,slist,varargin{:})
 
@@ -47,7 +48,7 @@ wmvec = TheoreticalRMSE.wmvec;
 simN = Parser.Results.simN;
 viewDistance = Parser.Results.viewDistance;
 
-dss = viewDistance*tand(dss);
+dss = viewDistance*(tand(fixPos) - tand(fixPos - dss));
 
 %% Load model fits and observed bias and variance for each subject
 

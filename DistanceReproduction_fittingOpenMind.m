@@ -18,7 +18,7 @@ MinMax = [2 30];
 outlier = Inf;
 FitAll = 1;
 SaveFlg = 1;
-dt = 2.5;
+dt = 5;
 viewDistance = 310;
 fixPos = 13;
 

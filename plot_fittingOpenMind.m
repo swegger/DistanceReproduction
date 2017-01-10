@@ -148,9 +148,9 @@ for i = 1:length(list)
         fH3 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
         ax = [60 110 60 110];%[12 20 12 20];
-        xticks = ax(1)+2:2:ax(2)-2;
+        xticks = ax(1)+2:10:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(1)+2:2:ax(2)-2;
+        yticks = ax(1)+2:10:ax(2)-2;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             axis(ax);
@@ -173,8 +173,8 @@ for i = 1:length(list)
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
         axis square
-        xlabel('d_s (deg)')
-        ylabel('d_p (deg)')
+        xlabel('d_s (mm)')
+        ylabel('d_p (mm)')
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')
@@ -237,8 +237,8 @@ for i = 1:length(list)
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
         axis square
-        xlabel('d_s (deg)')
-        ylabel('d_p (deg)')
+        xlabel('d_s (mm)')
+        ylabel('d_p (mm)')
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')
@@ -379,7 +379,7 @@ for i = 1:length(list)
         axis([0 edges(end) 0 1])
         p = ranksum(SE{1},SE{2},'tail','right');
         text(max(vertcat(SE{:}))*3/4,0.5,['p = ' num2str(p)],'horizontalAlignment','center');
-        xlabel('Squared error (deg^2)')
+        xlabel('Squared error (mm^2)')
         ylabel('Cumulative probability')
         legend('N = 1','N = 2','Location','SouthEast')
         mymakeaxis(gca)

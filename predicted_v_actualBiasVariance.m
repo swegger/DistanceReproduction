@@ -12,7 +12,7 @@ function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, deltaBV, 
 
 %% Defaults
 DAexpectation_default.methodopts.dx = 0.01;
-DAexpectation_default.dt = 2.5;%0.5;
+DAexpectation_default.dt = 0.05;%1;
 PlotOpts_default.colors = [0 0 1; 1 0 0];
 TheoreticalRMSE_default.wmvec = NaN;
 TheoreticalRMSE_default.type = 'EachSubject';
@@ -169,6 +169,17 @@ longBias = sqrt((MDP(end,:,:) - repmat(permute(b(:,1),[3 2 1]),[1 2 1]) - dss(en
 % shortBias = sqrt((MTP(1,:,:) - dss(1)).^2);
 % longBias = sqrt((MTP(end,:,:) - dss(end)).^2);
 
+%% Compute stats on deviation of normalized RMSE from model predictions
+for i = 1:length(slist)
+    normRMSE(i,:) = RMSE(i,:)./repmat(SimRMSEBLS(i,2),1,2);
+    normRMSEAve(i,:) = RMSE(i,:)./repmat(SimRMSEAve(i,2),1,2);
+end
+
+meanNormRMSE = mean(normRMSE,1);
+meanNormRMSEAve = mean(normRMSEAve,1);
+[~,P,CI,STATS] = ttest(normRMSE(:,2),1,'tail','both');
+[~,PAve,CIAve,STATSAve] = ttest(normRMSEAve(:,2),1,'tail','both');
+
 %% Ploting
 switch Plot
     case {'Yes','yes','y','Y','YES'}
@@ -193,9 +204,9 @@ switch Plot
         for n = 1:N
             plot(BIAS(:,n),SimBiasBLS(:,n),'o','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
-            q = find(strcmp('CV',slist));
+            q = find(strcmp('JW',slist));
             plot(BIAS(q,n),SimBiasBLS(q,n),'o','Color',colors(q,:))
-            q = find(strcmp('SM',slist));
+            q = find(strcmp('SWE',slist));
             plot(BIAS(q,n),SimBiasBLS(q,n),'o','Color',colors(q,:))
         end
 %        plot([min([BIAS(:); SimBiasBLS(:)]) max([BIAS(:); SimBiasBLS(:)])],[min([BIAS(:); SimBiasBLS(:)]) max([BIAS(:); SimBiasBLS(:)])],'k--')
@@ -208,9 +219,9 @@ switch Plot
         for n = 1:N
             plot(sqrtVAR(:,n),SimVarBLS(:,n),'s','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
-            q = find(strcmp('CV',slist));
+            q = find(strcmp('JW',slist));
             plot(sqrtVAR(q,n),SimVarBLS(q,n),'s','Color',colors(q,:))
-            q = find(strcmp('SM',slist));
+            q = find(strcmp('SWE',slist));
             plot(sqrtVAR(q,n),SimVarBLS(q,n),'s','Color',colors(q,:))
         end
         %plot([min([sqrtVAR(:); SimVarBLS(:)]) max([sqrtVAR(:); SimVarBLS(:)])],[min([sqrtVAR(:); SimVarBLS(:)]) max([sqrtVAR(:); SimVarBLS(:)])],'k--')
@@ -230,17 +241,17 @@ switch Plot
         for n = 1:N
             plot(BIAS(:,n)-SimBiasBLS(:,n),'o','Color',[1 1 1],'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
-            q = find(strcmp('CV',slist));
+            q = find(strcmp('JW',slist));
             plot(q,BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
-            q = find(strcmp('SM',slist));
+            q = find(strcmp('SWE',slist));
             plot(q,BIAS(q,n)-SimBiasBLS(q,n),'o','Color',colors(q,:))
         end
         for n = 1:N
             plot(sqrtVAR(:,n)-SimVarBLS(:,n),'s','Color',PlotOpts.colors(n,:),'MarkerFaceColor',PlotOpts.colors(n,:))
             hold on
-            q = find(strcmp('CV',slist));
+            q = find(strcmp('JW',slist));
             plot(q,sqrtVAR(q,n)-SimVarBLS(q,n),'s','Color',colors(q,:))
-            q = find(strcmp('SM',slist));
+            q = find(strcmp('SWE',slist));
             plot(q,sqrtVAR(q,n)-SimVarBLS(q,n),'s','Color',colors(q,:))
         end
         %axis square
@@ -359,8 +370,8 @@ switch Plot
         ah = gca;
         xticks = ah.XTick(1:2:end);
         xticklabels = ah.XTickLabel(1:2:end);
-        yticks = ah.YTick(1:2:end);
-        yticklabels = ah.YTickLabel(1:2:end);
+        yticks = [0 1 2];%ah.YTick(1:2:end);
+        yticklabels = {'0','1','2'};%ah.YTickLabel(1:2:end);
         mymakeaxis(ah,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         
         subplot(1,3,3)

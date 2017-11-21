@@ -986,7 +986,7 @@ for fits = 1:length(fittype)
                         Llikelihood(:,fits), LmodelEvidence(:,fits)] = ...
                         EKF_fitter(...
                         dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),...
-                        'InitCond',init,'FitType',Fit.method,[min(tss) max(tss) dt],...
+                        'InitCond',init,'FitType',Fit.method,[min(dss) max(dss) dt],...
                         'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
                         'CrossValidation',Fit.CrossValidation,...
                         'ModelEvidence',Fit.ModelEvidence,'ObsAct',Fit.ObsAct);
@@ -997,7 +997,7 @@ for fits = 1:length(fittype)
                     end
                     if any(~fitted)
                         [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = EKF_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits,1)),mean(B(:,fits)),mean(lapse(:,fits)),...
-                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(tss) max(tss) dt],'ObsAct',Fit.ObsAct); 
+                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt],'ObsAct',Fit.ObsAct); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
                         notFitLmodelEvidence(:,fits) = NaN;
@@ -1017,9 +1017,9 @@ for fits = 1:length(fittype)
                     
                     % Recalculate mtp and stdtp
                     for i = m
-                        for ii = 1:length(tss)
-                            mtp_in(ii,i) = mean(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
-                            stdtp_in(ii,i) = std(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
+                        for ii = 1:length(dss)
+                            mtp_in(ii,i) = mean(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
+                            stdtp_in(ii,i) = std(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
                         end
                         errors{i} = dsIn{i}(~lapseTrials{i}) - dpIn{i}(~lapseTrials{i});
                     end
@@ -1043,8 +1043,8 @@ for fits = 1:length(fittype)
                     else
                         batchsize = 1000000;
                     end
-                    LapseSupport = [MinMaxTp(1) max(tss)+MinMaxTp(2)];
-                    [WM(:,fits), WP(:,fits,1), B(:,fits), lapse(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = BLSbiasedLapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(tss) max(tss) dt batchsize],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
+                    LapseSupport = [MinMaxTp(1) max(dss)+MinMaxTp(2)];
+                    [WM(:,fits), WP(:,fits,1), B(:,fits), lapse(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = BLSbiasedLapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(dss) max(dss) dt batchsize],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
                         'CrossValidation',Fit.CrossValidation,'ModelEvidence',Fit.ModelEvidence,'ObsAct',Fit.ObsAct);
                     
                     % Find likelihood of model on left out condition, if it exists
@@ -1053,7 +1053,7 @@ for fits = 1:length(fittype)
                     end
                     if any(~fitted)
                         [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLSbiasedLapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits,1)),mean(B(:,fits)),mean(lapse(:,fits)),...
-                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(tss) max(tss) dt],'ObsAct',Fit.ObsAct); 
+                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(dss) max(dss) dt],'ObsAct',Fit.ObsAct); 
                     else
                         notFitLlikelihood(:,fits) = NaN;
                         notFitLmodelEvidence(:,fits) = NaN;
@@ -1073,9 +1073,9 @@ for fits = 1:length(fittype)
                     
                     % Recalculate mtp and stdtp
                     for i = m
-                        for ii = 1:length(tss)
-                            mtp_in(ii,i) = mean(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
-                            stdtp_in(ii,i) = std(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
+                        for ii = 1:length(dss)
+                            mtp_in(ii,i) = mean(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
+                            stdtp_in(ii,i) = std(dpIn{i}(dsIn{i} == dss(ii) & ~lapseTrials{i}));
                         end
                         errors{i} = dsIn{i}(~lapseTrials{i}) - dpIn{i}(~lapseTrials{i});
                     end

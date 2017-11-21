@@ -1,4 +1,6 @@
-function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, deltaBV, deltaBVBLS, deltaBVAve] = predicted_v_actualBiasVariance(slist,varargin)
+function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, ...
+    deltaBV, deltaBVBLS, deltaBVAve] = predicted_v_actualBiasVariance(...
+    slist,varargin)
 %% predicted_v_actualBiasVariance
 %
 %   [biases, variances, biasBLS, varBLS, biasAve, varAve, deltaBV,
@@ -51,6 +53,10 @@ fixPos = Parser.Results.fixPos;
 
 %dss = viewDistance*(tand(fixPos) - tand(fixPos - dss));
 
+if length(simulationN) == 1
+    simulationN = simulationN*ones(length(slist),1);
+end
+
 %% Load model fits and observed bias and variance for each subject
 
 for i = 1:length(slist)
@@ -80,7 +86,11 @@ end
 for i = 1:length(slist)
     for j = 1:N
         for simi = 1:simN
-            [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ta_expectation3(dss',wm(i,1),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,1),'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp','sigp',sigp(i,1));
+            [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ...
+                ta_expectation3(dss',wm(i,1),j,DAexpectation.dt,...
+                'method','numerical','trials',simulationN,'wp',wp(i,1),...
+                'Support',[min(dss) max(dss)],'Type','BLS_wm_wp_sigp',...
+                'sigp',sigp(i,1));
         end
         SimRMSEBLS(i,j) = mean(simRMSE);
         SimRMSEBLS_std(i,j) = std(simRMSE);
@@ -88,7 +98,11 @@ for i = 1:length(slist)
         SimVarBLS(i,j) = sqrt(mean(simv));
         
         for simi = 1:simN
-            [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,'method','numerical','trials',simulationN,'wp',wp(i,2),'Support',[min(dss) max(dss)],'Type','aveMeasurements','sigp',sigp(i,2));
+            [~, ~, simbias(simi), simv(simi), simRMSE(simi)] = ...
+                ta_expectation3(dss',wm(i,2),j,DAexpectation.dt,...
+                'method','numerical','trials',simulationN,'wp',wp(i,2),...
+                'Support',[min(dss) max(dss)],'Type','aveMeasurements',...
+                'sigp',sigp(i,2));
         end
         SimRMSEAve(i,j) = mean(simRMSE);
         SimRMSEAve_std(i,j) = std(simRMSE);

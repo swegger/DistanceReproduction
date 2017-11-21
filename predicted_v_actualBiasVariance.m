@@ -24,7 +24,7 @@ addRequired(Parser,'slist')     % List of subjects to analyze
 addParameter(Parser,'N',2)      % Maximum number of sets
 addParameter(Parser,'dss',14:1:18)     % sample times for experiment
 addParameter(Parser,'simulationN',10000)    % Number of trials per simulation
-addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20160628')
+addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20160714')
 addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling the calculation of the expected value of aim times under a model
 addParameter(Parser,'TheoreticalRMSE',TheoreticalRMSE_default)
 addParameter(Parser,'Plot','Yes')

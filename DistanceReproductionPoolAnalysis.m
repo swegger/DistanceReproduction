@@ -964,6 +964,131 @@ for fits = 1:length(fittype)
                     end
             end
             
+        case 'EKF'
+            switch Fit.method
+                case 'quad'
+                    % Fit the EKF model with bias and lapses to the data
+                    disp('Fitting EKF with bias and lapses model to the data using Simpsons quadrature...')
+                    init = Fit.init;
+                    if isstr(init)
+                        switch init
+                            case 'estb'
+                                init = [0.1 0.06 NaN 0.05];      % Default initial search but with estimate of baseline
+                                estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
+                                init(3) = estb(i);
+                            case 'default'
+                                init = [0.1 0.06 0 0.05];
+                        end
+                    end
+                    dt = Fit.dx;
+                    LapseSupport = [MinMaxDp(1) max(dss)+MinMaxDp(2)];
+                    [WM(:,fits), WP(:,fits,1), B(:,fits), lapse(:,fits),...
+                        Llikelihood(:,fits), LmodelEvidence(:,fits)] = ...
+                        EKF_fitter(...
+                        dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),...
+                        'InitCond',init,'FitType',Fit.method,[min(tss) max(tss) dt],...
+                        'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
+                        'CrossValidation',Fit.CrossValidation,...
+                        'ModelEvidence',Fit.ModelEvidence,'ObsAct',Fit.ObsAct);
+                    
+                    % Find likelihood of model on left out condition, if it exists
+                    for i = m
+                        fitted(i) = any(i == Fit.trialtypes);
+                    end
+                    if any(~fitted)
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = EKF_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits,1)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(tss) max(tss) dt],'ObsAct',Fit.ObsAct); 
+                    else
+                        notFitLlikelihood(:,fits) = NaN;
+                        notFitLmodelEvidence(:,fits) = NaN;
+                    end
+                    
+                    % Identify lapse trials
+                    if fits == Fit.modelUsed
+                        estimator.type = 'BLS';
+                        estiamtor.ObsAct = Fit.ObsAct;
+                        estiamtor.wy = mean(WM(:,fits));
+                        for i = m
+                            [~, ~, loglike, ~, like] = prob_tp_take_ts_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits,1)),i,'estimator',estimator);
+                            loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
+                            lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
+                        end
+                    end
+                    
+                    % Recalculate mtp and stdtp
+                    for i = m
+                        for ii = 1:length(tss)
+                            mtp_in(ii,i) = mean(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
+                            stdtp_in(ii,i) = std(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
+                        end
+                        errors{i} = dsIn{i}(~lapseTrials{i}) - dpIn{i}(~lapseTrials{i});
+                    end
+                    
+                case 'quad_batch'
+                    disp('Fitting BLS with bias model to the data using Simpsons quadrature...')
+                    init = Fit.init;
+                    if isstr(init)
+                        switch init
+                            case 'estb'
+                                init = [0.1 0.06 NaN];      % Default initial search but with estimate of baseline
+                                estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
+                                init(3) = estb(i);
+                            case 'default'
+                                init = [0.1 0.06 0];
+                        end
+                    end
+                    dt = Fit.dx;
+                    if isfield(varargin{fitnum+1},'batchsize')
+                        batchsize = varargin{fitnum+1}.batchsize;
+                    else
+                        batchsize = 1000000;
+                    end
+                    LapseSupport = [MinMaxTp(1) max(tss)+MinMaxTp(2)];
+                    [WM(:,fits), WP(:,fits,1), B(:,fits), lapse(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = BLSbiasedLapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(tss) max(tss) dt batchsize],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
+                        'CrossValidation',Fit.CrossValidation,'ModelEvidence',Fit.ModelEvidence,'ObsAct',Fit.ObsAct);
+                    
+                    % Find likelihood of model on left out condition, if it exists
+                    for i = m
+                        fitted(i) = any(i == Fit.trialtypes);
+                    end
+                    if any(~fitted)
+                        [notFitLlikelihood(:,fits), notFitLmodelEvidence(:,fits)] = BLSbiasedLapse_Validator(dsIn(~fitted),dpIn(~fitted),mean(WM(:,fits)),mean(WP(:,fits,1)),mean(B(:,fits)),mean(lapse(:,fits)),...
+                            'N',num2cell(m(~fitted)),'LapseSupport',LapseSupport,'ModelEvidence',Fit.ModelEvidence,'FitType',Fit.method,[min(tss) max(tss) dt],'ObsAct',Fit.ObsAct); 
+                    else
+                        notFitLlikelihood(:,fits) = NaN;
+                        notFitLmodelEvidence(:,fits) = NaN;
+                    end
+                    
+                    % Identify lapse trials
+                    if fits == Fit.modelUsed
+                        estimator.type = 'BLS';
+                        estimator.ObsAct = Fit.ObsAct;
+                        estiamtor.wy = mean(WM(:,fits));
+                        for i = m
+                            [~, ~, loglike, ~, like] = prob_tp_take_ts_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits,1)),i,'estimator',estimator);
+                            loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
+                            lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
+                        end
+                    end
+                    
+                    % Recalculate mtp and stdtp
+                    for i = m
+                        for ii = 1:length(tss)
+                            mtp_in(ii,i) = mean(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
+                            stdtp_in(ii,i) = std(dpIn{i}(dsIn{i} == tss(ii) & ~lapseTrials{i}));
+                        end
+                        errors{i} = dsIn{i}(~lapseTrials{i}) - dpIn{i}(~lapseTrials{i});
+                    end
+                    
+                otherwise
+                    error('Fitting method not recognized for BLSbiased fitter!')
+            end
+            G(:,fits) = 1;
+            WM_DRIFT(:,fits) = WM(:,fits);
+            W_INT(:,fits) = WM(:,fits)/sqrt(2);
+            ALPHA(:,fits) = ones(size(WM,1),1);
+            WP(:,fits,2) = WP(:,fits,1);
+            
         case 'none'
             WM(:,fits) = NaN(m(end),1);
             WP(:,fits) = NaN(m(end),1);

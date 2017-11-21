@@ -59,6 +59,8 @@ DAexpectation.simtrials = 10000;
 
 runs = runmap{SubjectN};
 
+SaveOpts_default.SaveFlg = true;
+
 %% Parse inputs
 Parser = inputParser;
 

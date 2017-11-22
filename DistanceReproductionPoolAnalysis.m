@@ -433,7 +433,7 @@ for fits = 1:length(fittype)
                     end
                     dt = Fit.dx;
                     LapseSupport = [MinMaxDp(1) max(dss)+MinMaxDp(2)];
-                    [WM(:,fits), WP(:,fits), B(:,fits), lapse(:,fits), SIGP(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(dss) max(dss) dt],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
+                    [WM(:,fits), WP(:,fits,1), B(:,fits), lapse(:,fits), SIGP(:,fits), Llikelihood(:,fits), LmodelEvidence(:,fits)] = BLS_wm_wp_sigp_b_lapse_fitter(dsIn(Fit.trialtypes),dpIn(Fit.trialtypes),'InitCond',init,'FitType',Fit.method,[min(dss) max(dss) dt],'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
                         'CrossValidation',Fit.CrossValidation,'ModelEvidence',Fit.ModelEvidence);
                     
                     % Find likelihood of model on left out condition, if it exists
@@ -523,6 +523,10 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+            WM_DRIFT(:,fits) = WM(:,fits);
+            W_INT(:,fits) = WM(:,fits)/sqrt(2);
+            ALPHA(:,fits) = ones(size(WM,1),1);
+            WP(:,fits,2) = WP(:,fits,1);
         
         case 'MAPbiasedLapse'
             switch Fit.method

@@ -35,7 +35,9 @@ DSS = Parser.Results.DSS;
 viewDistance = Parser.Results.viewDistance;
 fixPos = Parser.Results.fixPos;
 
-DSS = viewDistance*( tand(fixPos) - tand(fixPos-DSS) );
+if ~isnan(viewDistance)
+    DSS = viewDistance*( tand(fixPos) - tand(fixPos-DSS) );
+end
 
 %% Plot the data
 for si = 1:length(list)

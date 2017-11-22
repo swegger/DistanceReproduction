@@ -51,12 +51,6 @@ fparams_default.ModelEvidence.OpenMind = 1;
 bootparams.nbootstraps = 100;
 bootparams.nsamps = 500;
 
-% Parameters for calculating expected aim times
-DAexpectation.method = 'numerical';
-DAexpectation.trialtypes = [1 2];
-DAexpectation.ds_vec = viewDistance*(tand(fixPos) - tand(fixPos - (13:0.1:19)'));
-DAexpectation.simtrials = 10000;
-
 runs = runmap{SubjectN};
 
 SaveOpts_default.SaveFlg = true;
@@ -86,6 +80,15 @@ if SaveOpts.SaveFlg && ~isfield(SaveOpts,'SaveFile')
         '_' datestr(now,'yyyymmdd')];
 end
 
+% Parameters for calculating expected aim times
+DAexpectation.method = 'numerical';
+DAexpectation.trialtypes = [1 2];
+if isnan(ds_vec)
+    DAexpectation.ds_vec = (13:0.1:19)';
+else
+    DAexpectation.ds_vec = viewDistance*(tand(fixPos) - tand(fixPos - (13:0.1:19)'));
+end
+DAexpectation.simtrials = 10000;
 
 %%
 % Load the data

@@ -57,6 +57,10 @@ if length(simulationN) == 1
     simulationN = simulationN*ones(length(slist),1);
 end
 
+if ~isnan(viewDistance)
+    dss = viewDistance*( tand(fixPos) - tand(fixPos-dss) );
+end
+
 %% Load model fits and observed bias and variance for each subject
 
 for i = 1:length(slist)

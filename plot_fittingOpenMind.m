@@ -144,6 +144,8 @@ for si = 1:length(list)
             mymakeaxis(gca,'xytitle',titles{i},'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         end
         
+        
+        
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')
                 saveas(fH1,[SaveOpts.FileBase '_ts_v_tp_' datestr(now,'yyyymmdd')],'epsc')
@@ -188,6 +190,17 @@ for si = 1:length(list)
             mh = plot(DSS,mdp_in(:,i),'o','Color',colors(i,:));
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
+        
+        message = {['$$ \verb|' Fit.fittype{Fit.modelUsed} '|$$'], ...
+            ['$$ w_m = ' num2str(mean(WM(:,Fit.modelUsed))) '$$'],...
+            ['$$ w_p = ' num2str(mean(WP(:,Fit.modelUsed,1))) '$$'],...
+            ['$$ b = ' num2str(mean(B(:,Fit.modelUsed))) '$$'],...
+            ['$$ \lambda = ' num2str(mean(lapse(:,Fit.modelUsed))) '$$'],...
+            ['$$ w_{m_{\textrm{drift}}} = ' num2str(mean(WM_DRIFT(:,Fit.modelUsed))) '$$'],...
+            ['$$ w_{p_2} = ' num2str(mean(WP(:,Fit.modelUsed,2))) '$$'], ...
+            ['$$ \alpha = ' num2str(mean(ALPHA(:,Fit.modelUsed))) '$$']};
+        text(min(DSS)-0.2*min(DSS),max(DSS),message,'Interpreter','latex')
+        
         axis square
         xlabel('d_s (mm)')
         ylabel('d_p (mm)')
@@ -207,21 +220,32 @@ for si = 1:length(list)
         end
         
         % Generate expected production interval under second model
-        switch Fit.fittype{~(Fit.modelUsed == [1 2])}
-            case 'aveMeasurements'
-                for i = m
-                    taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
-                end
-                
-            case 'aveMeas_wm_wp_sigp'
-                for i = m
-                    taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'sigp',mean(SIGP(:,~(Fit.modelUsed == [1 2]))),'Support',[min(DSS) max(DSS)]);
-                end
-                
-            case 'MAPbiasedLapse'
-                for i = m
-                    taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
-                end
+        if length(Fit.fittype) > 1
+            estimator.type = Fit.fittype{~(Fit.modelUsed == [1 2])};
+            estimator.wy = mean(WP(:,~(Fit.modelUsed == [1 2])));
+            estimator.wm_drift = mean(WM_DRIFT(:,~(Fit.modelUsed == [1 2])));
+            for i = m
+                taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),...
+                    i,dt,'Type','N/A','method_options',method_opts,...
+                    'method','numerical','trials',simtrials,'wp',0,...
+                    'Support',[min(DSS) max(DSS)],'estimator',estimator);
+            end
+%             switch Fit.fittype{~(Fit.modelUsed == [1 2])}
+%                 case 'aveMeasurements'
+%                     for i = m
+%                         taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
+%                     end
+%                     
+%                 case 'aveMeas_wm_wp_sigp'
+%                     for i = m
+%                         taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','aveMeasurements','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'sigp',mean(SIGP(:,~(Fit.modelUsed == [1 2]))),'Support',[min(DSS) max(DSS)]);
+%                     end
+%                     
+%                 case 'MAPbiasedLapse'
+%                     for i = m
+%                         taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),i,dt,'Type','MAP','method_options',method_opts,'method','numerical','trials',simtrials,'wp',0,'Support',[min(DSS) max(DSS)]);
+%                     end
+%             end
         end
         
         % Replot with the expectations of the alternative model
@@ -252,9 +276,25 @@ for si = 1:length(list)
             mh = plot(DSS,mdp_in(:,i),'o','Color',colors(i,:));
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
+        
+        message = {['$$ \verb|' Fit.fittype{~(Fit.modelUsed == [1 2])} '|$$'], ...
+            ['$$ w_m = ' num2str(mean(WM(:,~(Fit.modelUsed == [1 2])))) '$$'],...
+            ['$$ w_p = ' num2str(mean(WP(:,~(Fit.modelUsed == [1 2]),1))) '$$'],...
+            ['$$ b = ' num2str(mean(B(:,~(Fit.modelUsed == [1 2])))) '$$'],...
+            ['$$ \lambda = ' num2str(mean(lapse(:,~(Fit.modelUsed == [1 2])))) '$$'],...
+            ['$$ w_{m_{\textrm{drift}}} = ' num2str(mean(WM_DRIFT(:,~(Fit.modelUsed == [1 2])))) '$$'],...
+            ['$$ w_{p_2} = ' num2str(mean(WP(:,~(Fit.modelUsed == [1 2]),2))) '$$'], ...
+            ['$$ \alpha = ' num2str(mean(ALPHA(:,~(Fit.modelUsed == [1 2])))) '$$']};
+        text(min(DSS)-0.2*min(DSS),max(DSS),message,'Interpreter','latex')
+        
         axis square
-        xlabel('d_s (mm)')
-        ylabel('d_p (mm)')
+        if isnan(viewDistance)
+            xlabel('d_s (deg)')
+            ylabel('d_p (deg)')            
+        else
+            xlabel('d_s (mm)')
+            ylabel('d_p (mm)')
+        end
         mymakeaxis(gca,'xytitle',d.sname,'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels);
         if SaveOpts.On
             if isfield(SaveOpts,'FileBase')

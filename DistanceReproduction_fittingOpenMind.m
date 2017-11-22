@@ -83,7 +83,7 @@ end
 % Parameters for calculating expected aim times
 DAexpectation.method = 'numerical';
 DAexpectation.trialtypes = [1 2];
-if isnan(ds_vec)
+if isnan(viewDistance)
     DAexpectation.ds_vec = (13:0.1:19)';
 else
     DAexpectation.ds_vec = viewDistance*(tand(fixPos) - tand(fixPos - (13:0.1:19)'));

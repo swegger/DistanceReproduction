@@ -165,7 +165,11 @@ for si = 1:length(list)
     if any(strcmp('ds_v_dp_1ax',FigureTypes))
         fH3 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-        ax = [60 110 60 110];%[12 20 12 20];
+        if isnan(viewDistance)
+            ax = [12 20 12 20];
+        else
+            ax = [60 110 60 110];%
+        end
         xticks = ax(1)+2:10:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
         yticks = ax(1)+2:10:ax(2)-2;

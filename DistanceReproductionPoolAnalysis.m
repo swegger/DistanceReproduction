@@ -1148,9 +1148,8 @@ for i = m
         for j = 1:nbootstraps
             es = [];
             for k = 1:length(dss)
-                disp(k)
-                tempP = dpIn{i}(~lapseTrials{i} & dsIn{i} == dss(k))
-                inds = ceil(length(tempP)*rand(nsamps,1))
+                tempP = dpIn{i}(~lapseTrials{i} & dsIn{i} == dss(k));
+                inds = ceil(length(tempP)*rand(nsamps,1));
                 es = [es; tempP(inds)/Ghat - Bhat - dss(k)];
                 tempm(k,:) = mean(tempP(inds));
                 tempstd(k,:) = std(tempP(inds));

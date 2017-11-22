@@ -748,9 +748,9 @@ switch Plot
         
         %% w_{m_1} vs w_{m_2}
         fh = figure('Name','w_{m_1} vs. w_{m_2}');
-        beta = regress(wm_drift(:,ModelUsed),wm(:,ModelUsed));
+        beta = regress(wm_drift(:,ModelUsed(1)),wm(:,ModelUsed(1)));
         for i = 1:length(slist)
-            plot(wm(i,ModelUsed),wm_drift(i,ModelUsed),'o','Color',colors(i,:),'MarkerFaceColor',colors(i,:))
+            plot(wm(i,ModelUsed(1)),wm_drift(i,ModelUsed(1)),'o','Color',colors(i,:),'MarkerFaceColor',colors(i,:))
             hold on
         end
         axis equal

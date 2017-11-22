@@ -68,6 +68,7 @@ addRequired(Parser,'SubjectN')
 addParameter(Parser,'SaveOpts',SaveOpts_default)
 addParameter(Parser,'fparams',fparams_default)
 addParameter(Parser,'TestSave',false)
+addParameter(Parser,'viewDistance',310)
 
 parse(Parser,SubjectN,varargin{:})
 
@@ -75,6 +76,7 @@ SubjectN = Parser.Results.SubjectN;
 SaveOpts = Parser.Results.SaveOpts;
 fparams = Parser.Results.fparams;
 TestSave = Parser.Results.TestSave;
+viewDistance = Parser.Results.viewDistance;
 
 fparams = asign_fparams(fparams);
 if SaveOpts.SaveFlg && ~isfield(SaveOpts,'SaveFile')
@@ -109,7 +111,8 @@ if FitAll
         BIASs, VARs, lapse, lapseTrials] = DistanceReproductionPoolAnalysis(d,...
         'runs',runs,'Distance_N',Distance_N,'Fit',fparams,'Plot','No',...
         'outlier',outlier,'ConflictType','equal','MinMax',MinMax,'Bootstrap',bootparams,...
-        'DAexpectation',DAexpectation,'trialWin',trialWin,'Save',SaveParam);
+        'DAexpectation',DAexpectation,'trialWin',trialWin,'Save',SaveParam,...
+        'viewDistance',viewDistance);
 end
 
 

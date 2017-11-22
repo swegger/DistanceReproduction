@@ -97,12 +97,14 @@ for i = m
     % Grab the appropriate data
     [ds1{i}, ds2{i}, ds{i}, dp{i}, ~, ~, Trials{i}, correct{i}, ~, ~, ~, N{i}] = DistanceReproduction_pooldata(d,'runs',runs,'Distance_N',i,'trialWin',trialWin);
     
-    % Convert from deg to mm
-    fixPos = double(d.fix_y{i}(1,2));
-    ds1{i} = viewDistance*( tand(fixPos) - tand(fixPos-ds1{i}) );
-    ds2{i} = viewDistance*( tand(fixPos) - tand(fixPos-ds2{i}) );
-    ds{i} = viewDistance*( tand(fixPos) - tand(fixPos-ds{i}) );
-    dp{i} = viewDistance*( tand(fixPos) - tand(fixPos-dp{i}) );
+    if ~isnan(viewDistance)
+        % Convert from deg to mm
+        fixPos = double(d.fix_y{i}(1,2));
+        ds1{i} = viewDistance*( tand(fixPos) - tand(fixPos-ds1{i}) );
+        ds2{i} = viewDistance*( tand(fixPos) - tand(fixPos-ds2{i}) );
+        ds{i} = viewDistance*( tand(fixPos) - tand(fixPos-ds{i}) );
+        dp{i} = viewDistance*( tand(fixPos) - tand(fixPos-dp{i}) );
+    end
     
     % Find data associated with the desired conflict type
     switch ConflictType

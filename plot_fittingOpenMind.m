@@ -38,8 +38,8 @@ fixPos = Parser.Results.fixPos;
 DSS = viewDistance*( tand(fixPos) - tand(fixPos-DSS) );
 
 %% Plot the data
-for i = 1:length(list)
-    load(list{i})
+for si = 1:length(list)
+    load(list{si})
     
     titles = PlotOpts.titles;
     RelativeFigSize = PlotOpts.RelativeFigSize;
@@ -63,6 +63,20 @@ for i = 1:length(list)
 %     disp(['lapse rate: ' num2str(mean(lapse,1))])
 %     disp('')
     
+    if any(isnan(ta))
+        clear ta
+        method_opts.dx = 0.01;
+        estimator.type = Fit.fittype{Fit.modelUsed};
+        estimator.wy = mean(WP(:,Fit.modelUsed));
+        estimator.wm_drift = mean(WM_DRIFT(:,Fit.modelUsed));
+        minmaxdss =[min(DSS) max(DSS)];
+        for i = m
+            ta(:,i) = ta_expectation3(ds_vec,wm,i,dt,'Type','N/A',...
+                'method_options',method_opts,'method','numerical',...
+                'trials',simtrials,'wp',0,'Support',minmaxdss,...
+                'estimator',estimator);
+        end
+    end
 
     % Dependence on sample distance
     if any(strcmp('ds_v_dp',FigureTypes))

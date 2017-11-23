@@ -76,7 +76,11 @@ for i = 1:length(slist)
     % Parameters fit to data
     wm(i,:) = mean(WM,1);
     wp(i,:) = mean(WP(:,:,1),1);
-    sigp(i,:) = mean(SIGP,1);
+    if exist('SIGP','var')
+        sigp(i,:) = mean(SIGP,1);
+    else
+        sigp(i,:) = zeros(1,2);
+    end
     if size(WP,3) > 1
         wp2(i,:) = mean(WP(:,:,2),1);
     else

@@ -785,7 +785,7 @@ for fits = 1:length(fittype)
                     if fits == Fit.modelUsed;
                         for i = m
                             estimator.type = 'weightedMean';
-                            estiamtor.weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
+                            estimator).weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
                             [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fids)),mean(WP(:,fids)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
                             lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
@@ -840,7 +840,7 @@ for fits = 1:length(fittype)
                     if fits == Fit.modelUsed;
                         for i = m
                             estimator.type = 'weightedMean';
-                            estiamtor.weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
+                            estimator).weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
                             [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
                             lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
@@ -898,7 +898,7 @@ for fits = 1:length(fittype)
                     if fits == Fit.modelUsed;
                         for i = m
                             estimator.type = 'weightedMean';
-                            estiamtor.weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
+                            estimator).weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
                             [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp_sigp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fids)),mean(WP(:,fids)),mean(SIGP(:,fids)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
                             lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
@@ -953,7 +953,7 @@ for fits = 1:length(fittype)
                     if fits == Fit.modelUsed;
                         for i = m
                             estimator.type = 'weightedMean';
-                            estiamtor.weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
+                            estimator).weights = ones(1,Fit.trialtypes(i))/Fit.trialtypes(i);
                             [~, ~, loglike, ~, like] = prob_dp_take_ds_wm_wp_sigp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits)),mean(SIGP(:,fits)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
                             lapseTrials{i} = log((1-mean(lapse(:,fits)))*like) < loglikeLapse;
@@ -1012,8 +1012,8 @@ for fits = 1:length(fittype)
                     % Identify lapse trials
                     if fits == Fit.modelUsed
                         estimator.type = 'EKF';
-                        estiamtor.ObsAct = Fit.ObsAct;
-                        estiamtor.wy = mean(WM(:,fits));
+                        estimator).ObsAct = Fit.ObsAct;
+                        estimator).wy = mean(WM(:,fits));
                         for i = m
                             [~, ~, loglike, ~, like] = prob_tp_take_ts_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits,1)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
@@ -1069,7 +1069,7 @@ for fits = 1:length(fittype)
                     if fits == Fit.modelUsed
                         estimator.type = 'BLS';
                         estimator.ObsAct = Fit.ObsAct;
-                        estiamtor.wy = mean(WM(:,fits));
+                        estimator).wy = mean(WM(:,fits));
                         for i = m
                             [~, ~, loglike, ~, like] = prob_tp_take_ts_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits,1)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));
@@ -1099,17 +1099,17 @@ for fits = 1:length(fittype)
         case 'BLS_wm1wm2'
             switch Fit.method
                 case 'quad'
-                    % Fit the EKF model with bias and lapses to the data
-                    disp('Fitting EKF with bias and lapses model to the data using Simpsons quadrature...')
+                    % Fit the BLS_wm1wm2 model with bias and lapses to the data
+                    disp('Fitting BLS_wm1wm2 with bias and lapses model to the data using Simpsons quadrature...')
                     init = Fit.init;
                     if isstr(init)
                         switch init
                             case 'estb'
-                                init = [0.1 0.06 NaN 0.05 0 0];      % Default initial search but with estimate of baseline
+                                init = [0.1 0.06 0.2 NaN 0 0];      % Default initial search but with estimate of baseline
                                 estb(i) = nanmean(dpIn{i}) - nanmean(dsIn{i});
-                                init(3) = estb(i);
+                                init(4) = estb(i);
                             case 'default'
-                                init = [0.1 0.06 0 0.05 0 0];
+                                init = [0.1 0.06 0.2 0 0 0];
                         end
                     end
                     dt = Fit.dx;
@@ -1139,8 +1139,8 @@ for fits = 1:length(fittype)
                     % Identify lapse trials
                     if fits == Fit.modelUsed
                         estimator.type = 'BLS_wm1wm2';
-                        estiamtor.ObsAct = Fit.ObsAct;
-                        estiamtor.wy = mean(WM(:,fits));
+                        estimator).ObsAct = Fit.ObsAct;
+                        estimator).wy = mean(WM(:,fits));
                         estimator.wm_drift = mean(WM_DRIFT(:,fits));
                         estimator.sigp = mean(SIGP(:,fits));
                         for i = m
@@ -1198,7 +1198,7 @@ for fits = 1:length(fittype)
                     if fits == Fit.modelUsed
                         estimator.type = 'BLS';
                         estimator.ObsAct = Fit.ObsAct;
-                        estiamtor.wy = mean(WM(:,fits));
+                        estimator).wy = mean(WM(:,fits));
                         for i = m
                             [~, ~, loglike, ~, like] = prob_tp_take_ts_wm_wp(dpIn{i}-mean(B(:,fits)),dsIn{i},mean(WM(:,fits)),mean(WP(:,fits,1)),i,'estimator',estimator);
                             loglikeLapse = log(mean(lapse(:,fits))/(LapseSupport(2)-LapseSupport(1)));

@@ -85,7 +85,7 @@ DAexpectation.method = 'numerical';
 DAexpectation.trialtypes = [1 2];
 if isnan(viewDistance)
     DAexpectation.ds_vec = (13:0.1:19)';
-    dt = 0.1;
+    dt = 0.5;
     fparams.dx = dt;
 else
     DAexpectation.ds_vec = viewDistance*(tand(fixPos) - tand(fixPos - (13:0.1:19)'));

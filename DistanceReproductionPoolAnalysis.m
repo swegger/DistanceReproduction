@@ -204,9 +204,6 @@ else
     fittype = Fit.fittype;
 end
 for fits = 1:length(fittype)
-    if ~strcmp(fittype{fits},'BLS_wm_wp_sigp') && ~strcmp(fittype{fits},'aveMeas_wm_wp_sigp') && ~strcmp(fittype{fits},'EKF')
-        SIGP(:,fits) = NaN;
-    end
     switch fittype{fits}
         case 'BLSbiased'
             switch Fit.method
@@ -251,6 +248,7 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
             lapse(:,fits) = 0;
             if fits == Fit.modelUsed;
                 for i = 1:length(dsIn)
@@ -301,6 +299,7 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for gBLS fitter!')
             end
             B(:,fits) = 0;
+            SIGP(:,fits) = nan(size(WM,1));
             lapse(:,fits) = 0;
             if fits == Fit.modelUsed;
                 for i = 1:length(dsIn)
@@ -416,6 +415,7 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
         
         case 'BLS_wm_wp_sigp'
             switch Fit.method
@@ -638,6 +638,7 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
             
         case 'ObsActBiasedLapse'
             switch Fit.method
@@ -747,6 +748,7 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
             
         case 'aveMeasurements'
             switch Fit.method
@@ -860,6 +862,7 @@ for fits = 1:length(fittype)
                     error('Fitting method not recognized for BLSbiased fitter!')
             end
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
         
         case 'aveMeas_wm_wp_sigp'
             switch Fit.method
@@ -1228,6 +1231,7 @@ for fits = 1:length(fittype)
             WP(:,fits) = NaN(m(end),1);
             B(:,fits) = 0;
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
             Llikelihood(:,fits) = NaN(m(end),1);
             estb(:,fits) = NaN(m(end),1);
             lapse(:,fits) = 0;
@@ -1244,6 +1248,7 @@ for fits = 1:length(fittype)
             WP(:,fits) = NaN(m(end),1);
             B(:,fits) = 0;
             G(:,fits) = 1;
+            SIGP(:,fits) = nan(size(WM,1));
             Llikelihood(:,fits) = NaN(m(end),1);
             estb(:,fits) = NaN(m(end),1);
             lapse(:,fits) = 0;

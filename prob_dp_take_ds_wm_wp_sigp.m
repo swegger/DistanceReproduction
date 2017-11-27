@@ -25,6 +25,7 @@ addParameter(p,'dpvec',[]);
 addParameter(p,'dss',[]);
 addParameter(p,'dsMinMax',[]);
 addParameter(p,'estimator',estimator_default)
+addParameter(p,'dx',1);
 
 parse(p,dp,ds,wm,wp,sigp,N,varargin{:})
 
@@ -38,6 +39,7 @@ dpvec = p.Results.dpvec;
 dss = p.Results.dss;
 dsMinMax = p.Results.dsMinMax;
 estimator = p.Results.estimator;
+dx = p.Results.dx;
 
 if isempty(dpvec)
     % Generate a vector of points to find the probability of a production time
@@ -71,17 +73,17 @@ end
 % Determine expected distributions under each model for each combination of sample intervals
 for i = 1:length(dss)
     dstemp = dss(i,:);
-    modelprob(:,i) = p_dp(dstemp,dpvec(:),wm,wp,sigp,N,dsMinMax(1),dsMinMax(2),estimator);
+    modelprob(:,i) = p_dp(dstemp,dpvec(:),wm,wp,sigp,N,dsMinMax(1),dsMinMax(2),estimator,dx);
 end
 
 % Determine the likelihood of the model given the data
 for i = 1:size(ds,1)
-    like(i,:) = p_dp(ds(i,:),dp(i),wm,wp,sigp,N,dsMinMax(1),dsMinMax(2),estimator);
+    like(i,:) = p_dp(ds(i,:),dp(i),wm,wp,sigp,N,dsMinMax(1),dsMinMax(2),estimator,dx);
 end
 loglike = sum(log(like(:)));
 
 %% Functions
-function p = p_dp(ds,dp,wm,wp,sigp,N,dsmin,dsmax,estimator)
+function p = p_dp(ds,dp,wm,wp,sigp,N,dsmin,dsmax,estimator,dx)
 %% For generating the probability of each dp
 % [y1, y2] = ndgrid(ds,dp);
 % Y = [y1(:) y2(:)];
@@ -89,12 +91,12 @@ function p = p_dp(ds,dp,wm,wp,sigp,N,dsmin,dsmax,estimator)
 Y{1} = ds;
 Y{2} = dp;
 
-functionHandle = @(tm,Y)(integrand(tm,Y,wm,wp,sigp,dsmin,dsmax,estimator));
+functionHandle = @(tm,Y)(integrand(tm,Y,wm,wp,sigp,dsmin,dsmax,estimator,dx));
 options.dx = 0.02;
 p = ndintegrate(functionHandle,repmat([mean(ds)-5*mean(ds)*wm mean(ds)+5*mean(ds)*wm],N,1),'method','quad','options',options,'ExtraVariables',Y);
 
 
-function out = integrand(dm,Y,wm,wp,sigp,dsmin,dsmax,estimator)
+function out = integrand(dm,Y,wm,wp,sigp,dsmin,dsmax,estimator,dx)
 %% For integration of across measurements in generating the p(dp|ds)
 
 % Unpack extra variables
@@ -109,7 +111,7 @@ dp = Y{2};
 DS = repmat(ds,size(dm,1),1);
 DP = repmat(permute(dp,[3 2 1]),size(dm,1),1,1);
 method_opts.type = 'quad';
-method_opts.dx = 1;
+method_opts.dx = dx;
 fBLS = ScalarBayesEstimators(dm,wm,dsmin,dsmax,'method',method_opts,'estimator',estimator);
 fBLS = repmat(fBLS,1,1,size(DP,3));
 

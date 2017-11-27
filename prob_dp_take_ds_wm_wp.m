@@ -59,6 +59,10 @@ elseif size(ds,2) ~= N
     error('The number of columns in ds must be equal to N or 1.')
 end
 
+if ~isfield(estimator,'sigp')
+    estimator.sigp = 0;
+end
+
 % Determine the distribution of production times for each combination of sample intervals
 for i = 1:length(dss)
     inds = find(sum(ds == repmat(dss(i,:),size(ds,1),1),2) == N);
@@ -113,13 +117,13 @@ fBLS = repmat(fBLS,1,1,size(DP,3));
 
 % Find the probability for each combination of variables
 if size(dm,2) == 1
-    p_dp_take_fBLS = (1./sqrt(2*pi*wp^2*fBLS.^2)).*exp(-(DP-fBLS).^2./(2*wp^2*fBLS.^2));
+    p_dp_take_fBLS = (1./sqrt(2*pi*(wp^2*fBLS.^2 + estimator.sigp^2))).*exp(-(DP-fBLS).^2./(2*(wp^2*fBLS.^2 + estimator.sigp^2)));
     p_tm_take_ds = (1./sqrt(2*pi*wm^2*DS.^2)).*exp(-sum((dm-DS).^2,2)./(2*wm^2*DS.^2));
 elseif size(dm,2) == 2
 %     TPmod = TP(:,:,1:end/2);
 %     fBLSmod = fBLS(:,:,1:end/2);
 %     p_dp_take_fBLS = (1./sqrt(2*pi*wp^2*fBLSmod.^2)).*exp(-(TPmod-fBLSmod).^2./(2*wp^2*fBLSmod.^2));
-    p_dp_take_fBLS = (1./sqrt(2*pi*wp^2*fBLS.^2)).*exp(-(DP-fBLS).^2./(2*wp^2*fBLS.^2));
+    p_dp_take_fBLS = (1./sqrt(2*pi*(wp^2*fBLS.^2 + estimator.sigp^2))).*exp(-(DP-fBLS).^2./(2*(wp^2*fBLS.^2 + estimator.sigp^2)));
 %     DS1 = DS(:,1,1:2:end);
 %     DS2 = DS(:,2,2:2:end);
 %     p_tm_take_ds = (1./sqrt(2*pi*wm^2*DS1.^2)).*exp(-(repmat(tm(:,1),1,1,size(DS1,3))-DS1).^2./(2*wm^2*DS1.^2)) .* (1./sqrt(2*pi*wm^2*DS2.^2)).*exp(-(repmat(tm(:,2),1,1,size(DS2,3))-DS2).^2./(2*wm^2*DS2.^2)); %(1./(2*pi*wm^2*DS1.*DS2)).*exp(-(repmat(tm(:,1),1,1,size(DS1,3))-DS1).^2./(2*wm^2*DS1.^2) - (repmat(tm(:,2),1,1,size(DS2,3))-DS2).^2./(2*wm^2*DS2.^2));

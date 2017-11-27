@@ -41,6 +41,7 @@ addParameter(Parser,'DiffTolerance',2/60)       % Tolerance for difference in sa
 addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling the calculation of the expected value of aim distances under a model
 addParameter(Parser,'OutlierRejectionRounds',3)
 addParameter(Parser,'viewDistance',310) % Programmed viewing distance; for converting deg to mm
+addParameter(Parser,'InequalityBound',false)
 
 parse(Parser,d,varargin{:})
 
@@ -61,6 +62,7 @@ DiffTolerance = Parser.Results.DiffTolerance;
 DAexpectation = Parser.Results.DAexpectation;
 OutlierRejectionRounds = Parser.Results.OutlierRejectionRounds;
 viewDistance = Parser.Results.viewDistance;
+InequalityBound = Parser.Results.InequalityBound;
 
 % Check to see if run information was provided
 if isnan(runs)
@@ -90,6 +92,7 @@ end
 if ~isfield(Fit,'modelUsed')
     Fit.modelUsed = 1;      % Use the first model fit by default
 end
+
 
 %% Analyze data
 
@@ -1133,7 +1136,7 @@ for fits = 1:length(fittype)
                         'N',num2cell(Fit.trialtypes),'LapseSupport',LapseSupport,...
                         'CrossValidation',Fit.CrossValidation,...
                         'ModelEvidence',Fit.ModelEvidence,'ObsAct',Fit.ObsAct,...
-                        'InequalityBound',true);
+                        'InequalityBound',InequalityBound);
                     
                     % Find likelihood of model on left out condition, if it exists
                     for i = m

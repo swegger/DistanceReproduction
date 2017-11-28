@@ -170,9 +170,9 @@ for si = 1:length(list)
         else
             ax = [60 110 60 110];%
         end
-        xticks = ax(1)+2:10:ax(2)-2;
+        xticks = ax(1)+2:2:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(1)+2:10:ax(2)-2;
+        yticks = ax(1)+2:2:ax(2)-2;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             axis(ax);
@@ -255,10 +255,14 @@ for si = 1:length(list)
         % Replot with the expectations of the alternative model
         fH3_2 = figure('Name',[d.sname ' RS1G vs RS2G']);
         ah = axes;
-        ax = [60 110 60 110]; %[12 20 12 20];
-        xticks = ax(1)+2:4:ax(2)-2;
+        if isnan(viewDistance)
+            ax = [12 20 12 20];
+        else
+            ax = [60 110 60 110];%
+        end
+        xticks = ax(1)+2:2:ax(2)-2;
         xticklabels = strread(num2str(xticks),'%s');
-        yticks = ax(1)+2:4:ax(2)-2;
+        yticks = ax(1)+2:2:ax(2)-2;
         yticklabels = strread(num2str(yticks),'%s');
         for i = m
             axis(ax);

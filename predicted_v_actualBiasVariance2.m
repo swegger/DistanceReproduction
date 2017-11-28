@@ -64,7 +64,7 @@ end
 %% Load model fits and observed bias and variance for each subject
 
 for i = 1:length(slist)
-    load([slist{i} CommonFileName],'WM','WP','B','lapse','bias','SIGP',...
+    load([slist{i} CommonFileName],'WM','WP','WM_DRIFT','B','lapse','bias','SIGP',...
         'BIASs','variance','VARs','rmse','RMSEs','Fit','Llikelihood',...
         'mdp_in','notFitLlikelihood','stddp_in','lapseTrials','dsIn')
     
@@ -157,6 +157,9 @@ for i = 1:length(slist)
             if strcmp(Models{i}{modeli},'aveMeasurements') 
                 estimator.type = 'weightedMean';
                 estimator.weights = 1/j * ones(1,j);
+            end
+            if strcmp(Models{i}{modeli},'BLS_wm1wm2') 
+                estimator.wm_drift = wm_drift(i,modeli);
             end
             [~, ~, simbias, simv, SimRMSE(i,j,modeli)] = ta_expectation3(dss',...
                 wm(i,modeli),j,DAexpectation.dt,'method','numerical',...

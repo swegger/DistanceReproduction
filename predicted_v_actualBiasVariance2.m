@@ -26,12 +26,12 @@ addRequired(Parser,'slist')     % List of subjects to analyze
 addParameter(Parser,'N',2)      % Maximum number of sets
 addParameter(Parser,'dss',14:1:18)     % sample times for experiment
 addParameter(Parser,'simulationN',10000)    % Number of trials per simulation
+addParameter(Parser,'simN',1)               % Number of times to perform simulations
 addParameter(Parser,'CommonFileName','_BLSbiasedFitResults20160714')
 addParameter(Parser,'DAexpectation',DAexpectation_default)  % For controlling the calculation of the expected value of aim times under a model
 addParameter(Parser,'TheoreticalRMSE',TheoreticalRMSE_default)
 addParameter(Parser,'Plot','Yes')
 addParameter(Parser,'PlotOpts',PlotOpts_default)
-addParameter(Parser,'simN',100) % Number of simulations to run
 addParameter(Parser,'viewDistance',310) % Programmed viewing distance; for converting deg to mm
 addParameter(Parser,'fixPos',13)    % Programed fixation position, in deg
 
@@ -41,13 +41,13 @@ slist = Parser.Results.slist;
 N = Parser.Results.N;
 dss = Parser.Results.dss;
 simulationN = Parser.Results.simulationN;
+simN = Parser.Results.simN;
 CommonFileName = Parser.Results.CommonFileName;
 DAexpectation = Parser.Results.DAexpectation;
 TheoreticalRMSE = Parser.Results.TheoreticalRMSE;
 Plot = Parser.Results.Plot;
 PlotOpts = Parser.Results.PlotOpts;
 wmvec = TheoreticalRMSE.wmvec;
-simN = Parser.Results.simN;
 viewDistance = Parser.Results.viewDistance;
 fixPos = Parser.Results.fixPos;
 
@@ -161,12 +161,17 @@ for i = 1:length(slist)
             if strcmp(Models{i}{modeli},'BLS_wm1wm2') 
                 estimator.wm_drift = wm_drift(i,modeli);
             end
-            [~, ~, simbias, simv, SimRMSE(i,j,modeli)] = ta_expectation3(dss',...
-                wm(i,modeli),j,DAexpectation.dt,'method','numerical',...
-                'trials',simulationN(i),'wp',wp(i,modeli),'sigp',sigp(i,modeli),...
-                'Support',[min(dss) max(dss)],'estimator',estimator);
-            SimBias(i,j,modeli) = sqrt(simbias);
-            SimVar(i,j,modeli) = sqrt(simv);
+            for simi = 1:simN
+                [~, ~, simbias, simv, SimRMSEtemp(simi)] = ta_expectation3(dss',...
+                    wm(i,modeli),j,DAexpectation.dt,'method','numerical',...
+                    'trials',simulationN(i),'wp',wp(i,modeli),'sigp',sigp(i,modeli),...
+                    'Support',[min(dss) max(dss)],'estimator',estimator);
+                SimBiasTemp(simi) = sqrt(simbias);
+                SimVarTemp(simi) = sqrt(simv);
+            end
+            SimRMSE(i,j,modeli) = mean(SimRMSEtemp);
+            SimBias(i,j,modeli) = mean(SimBiasTemp);
+            SimVar(i,j,modeli) = mean(SimVarTemp);
         end
     end
 end

@@ -556,7 +556,44 @@ switch Plot
 %             ylabel('Scaled RMSE_2')
 %             legend({'BLS','Ave',slist{:},'No integration'},'Location','NorthWest')
 %         end
-%         
+%
+
+        %% Residual BIAS
+        figure('Name','Residual BIAS','Position',[155 296 1212 372])
+        for modeli = 1:length(Models{1})
+            subplot(1,length(Models{1}),modeli)
+            residualBias(:,:,modeli) = BIAS-SimBias(:,:,modeli);
+            edges = linspace(-10,10,8);
+            x = edges + (edges(2) - edges(1))/2;
+            ncount = histcounts(residualBias(:,1,modeli),edges);
+            barProperties.FaceColor = PlotOpts.colors(1,:);
+            barProperties.EdgeColor = 'none';
+            barProperties.ShowBaseLine = 'off';
+            barProperties.BarWidth = 0.8;
+%             barProperties.FaceAlpha = 0.3;
+            h = mybargraph(x(1:end-1),ncount,'barProperties',barProperties);
+            hold on
+            [h pval]= ttest(residualBias(:,1,modeli));
+            text(-8,5.8,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(1,:));
+            
+            ncount = histcounts(residualBias(:,2,modeli),edges);
+            barProperties.FaceColor = PlotOpts.colors(2,:);
+            barProperties.EdgeColor = 'none';
+            barProperties.ShowBaseLine = 'off';
+            barProperties.BarWidth = 0.8;
+%             barProperties.FaceAlpha = 0.3;
+            mybargraph(x(1:end-1),ncount,'barProperties',barProperties);
+            [h pval]= ttest(residualBias(:,2,modeli));
+            text(-8,5.5,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(2,:));
+            
+            axis([-10 10 0 6])
+            
+            ylabel('Count')
+            xlabel('Residual BIAS (ms)')
+            mymakeaxis(gca,'xytitle',Models{1}{modeli},...
+                'xticks',[-10 0 10],'xticklabels',{'-10','0','10'});
+        end
+
         %% BIAS/VAR QUIVER
         
         figure('Name','BiasVarianceQuiver')

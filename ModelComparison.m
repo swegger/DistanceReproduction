@@ -29,13 +29,15 @@ for modeli = 1:length(Models)
         switch Models{modeli}
             
             case 'LNE'
-                temp = load([slist{si} '_BLSbiasedFitResults20160714'],'Llikelihood');
+                temp = load([slist{si} '_BLSbiasedFitResults20150913'],'Llikelihood');
+%                 temp = load([slist{si} '_BLSbiasedFitResults20160714'],'Llikelihood');
                 LL(1:size(temp.Llikelihood,1)-1,si,modeli) = -temp.Llikelihood(1:end-1,2);
             case 'EKF'
                 temp = load([slist{si} '_EKF_ObsAct0_20171127'],'Llikelihood');
                 LL(1:size(temp.Llikelihood,1)-1,si,modeli) = -temp.Llikelihood(1:end-1,1);       
             case 'BLS'
-                temp = load([slist{si} '_BLSbiasedFitResults20160714'],'Llikelihood');
+                temp = load([slist{si} '_BLSbiasedFitResults20150913'],'Llikelihood');
+%                 temp = load([slist{si} '_BLSbiasedFitResults20160714'],'Llikelihood');
                 LL(1:size(temp.Llikelihood,1)-1,si,modeli) = -temp.Llikelihood(1:end-1,1);     
             case 'BLS_wm1wm2'
                 temp = load([slist{si} '_BLS_wm1wm2_ObsAct0_20171127'],'Llikelihood');

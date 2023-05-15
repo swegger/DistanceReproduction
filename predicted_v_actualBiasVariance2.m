@@ -1,5 +1,5 @@
 function [BIAS, sqrtVAR, SimBiasBLS, SimVarBLS, SimBiasAve, SimVarAve, ...
-    deltaBV, deltaBVBLS, deltaBVAve] = predicted_v_actualBiasVariance(...
+    deltaBV, deltaBVBLS, deltaBVAve] = predicted_v_actualBiasVariance2(...
     slist,varargin)
 %% predicted_v_actualBiasVariance
 %
@@ -161,6 +161,10 @@ for i = 1:length(slist)
             if strcmp(Models{i}{modeli},'BLS_wm1wm2') 
                 estimator.wm_drift = wm_drift(i,modeli);
             end
+            if strcmp(Models{i}{modeli},'aveMeas_wm_wp_sigp') 
+                estimator.type = 'weightedMean';
+                estimator.weights = 1/j * ones(1,j);
+            end
             for simi = 1:simN
                 [~, ~, simbias, simv, SimRMSEtemp(simi)] = ta_expectation3(dss',...
                     wm(i,modeli),j,DAexpectation.dt,'method','numerical',...
@@ -270,6 +274,20 @@ for modeli = 1:length(Models{1})
     [~,P(:,:,modeli),CI(:,:,modeli),STATS(modeli)] = ttest(normRMSE(:,2),1,'tail','both');
 end
 
+for modeli = 1:length(Models{1})
+    delNormRMSE(:,modeli) = diff(RMSE,1,2)./diff(SimRMSE(:,:,modeli),1,2);
+    [~,delP(:,:,modeli),CI(:,:,modeli), delSTATS(modeli)] = ttest(...
+        delNormRMSE(:,modeli),1,'tail','left');
+end
+
+%% Compute stats on biases
+for modeli = 1:length(Models{1})
+    residualBias(:,:,modeli) = BIAS-SimBias(:,:,modeli);
+    for j = 1:2
+        [~, pvalBias(:,j,modeli), ~, STATSbias(:,j,modeli)]= ttest(residualBias(:,j,modeli));
+    end
+end
+
 %% Ploting
 %% Ploting
 switch Plot
@@ -314,12 +332,23 @@ switch Plot
             end
             axis square
             plotUnity;
-            xlabel('BIAS & sqrt(Var) (ms)')
-            ylabel('Expected BIAS & sqrt(Var) (ms)')
-            xticks = 0:50:150;
-            xticklabels = {'0','50','100','150'};
-            yticks = xticks;
-            yticklabels = xticklabels;
+            if isnan(viewDistance)
+                axis([0 2 0 2])
+                xlabel('BIAS & sqrt(Var) (deg)')
+                ylabel('Expected BIAS & sqrt(Var) (deg)')
+                xticks = [0 1 2];
+                xticklabels = {'0','1','2'};
+                yticks = xticks;
+                yticklabels = xticklabels;
+            else
+                axis([0 100 0 100])
+                xlabel('BIAS & sqrt(Var) (mm)')
+                ylabel('Expected BIAS & sqrt(Var) (mm)')
+                xticks = [0 60 100];
+                xticklabels = {'0','60','100'};
+                yticks = xticks;
+                yticklabels = xticklabels;
+            end
             mymakeaxis(gca,'xytitle',['Actual vs ' Models{1}{modeli}],...
                 'xticks',xticks,'xticklabels',xticklabels,'yticks',yticks,'yticklabels',yticklabels)
         end
@@ -563,35 +592,71 @@ switch Plot
         for modeli = 1:length(Models{1})
             subplot(1,length(Models{1}),modeli)
             residualBias(:,:,modeli) = BIAS-SimBias(:,:,modeli);
-            edges = linspace(-10,10,8);
+            edges = linspace(-0.2,0.2,8);
             x = edges + (edges(2) - edges(1))/2;
             ncount = histcounts(residualBias(:,1,modeli),edges);
             barProperties.FaceColor = PlotOpts.colors(1,:);
             barProperties.EdgeColor = 'none';
             barProperties.ShowBaseLine = 'off';
             barProperties.BarWidth = 0.8;
-%             barProperties.FaceAlpha = 0.3;
+            barProperties.FaceAlpha = 0.3;
             h = mybargraph(x(1:end-1),ncount,'barProperties',barProperties);
             hold on
             [h pval]= ttest(residualBias(:,1,modeli));
-            text(-8,5.8,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(1,:));
+            text(-0.18,5.8,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(1,:));
             
             ncount = histcounts(residualBias(:,2,modeli),edges);
             barProperties.FaceColor = PlotOpts.colors(2,:);
             barProperties.EdgeColor = 'none';
             barProperties.ShowBaseLine = 'off';
             barProperties.BarWidth = 0.8;
-%             barProperties.FaceAlpha = 0.3;
+            barProperties.FaceAlpha = 0.3;
             mybargraph(x(1:end-1),ncount,'barProperties',barProperties);
             [h pval]= ttest(residualBias(:,2,modeli));
-            text(-8,5.5,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(2,:));
+            text(-0.18,5.5,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(2,:));
             
-            axis([-10 10 0 6])
+            axis([-0.2 0.2 0 6])
             
             ylabel('Count')
             xlabel('Residual BIAS (ms)')
             mymakeaxis(gca,'xytitle',Models{1}{modeli},...
-                'xticks',[-10 0 10],'xticklabels',{'-10','0','10'});
+                'xticks',[-0.2 0 0.2],'xticklabels',{'-0.2','0','0.2'});
+        end
+        
+        %% Residual VAR
+        figure('Name','Residual VAR','Position',[155 296 1212 372])
+        for modeli = 1:length(Models{1})
+            subplot(1,length(Models{1}),modeli)
+            residualVAR(:,:,modeli) = sqrtVAR-SimVar(:,:,modeli);
+            edges = linspace(-0.2,0.2,8);
+            x = edges + (edges(2) - edges(1))/2;
+            ncount = histcounts(residualVAR(:,1,modeli),edges);
+            barProperties.FaceColor = PlotOpts.colors(1,:);
+            barProperties.EdgeColor = 'none';
+            barProperties.ShowBaseLine = 'off';
+            barProperties.BarWidth = 0.8;
+            barProperties.FaceAlpha = 0.3;
+            h = mybargraph(x(1:end-1),ncount,'barProperties',barProperties);
+            hold on
+            [h pval]= ttest(residualVAR(:,1,modeli));
+            text(-0.18,5.8,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(1,:));
+            
+            ncount = histcounts(residualVAR(:,2,modeli),edges);
+            barProperties.FaceColor = PlotOpts.colors(2,:);
+            barProperties.EdgeColor = 'none';
+            barProperties.ShowBaseLine = 'off';
+            barProperties.BarWidth = 0.8;
+            barProperties.FaceAlpha = 0.3;
+            mybargraph(x(1:end-1),ncount,'barProperties',barProperties);
+            [h pval]= ttest(residualVAR(:,2,modeli));
+            text(-0.18,5.5,['p-val = ' num2str(pval)],'Color',PlotOpts.colors(2,:));
+            
+            axis([-0.2 0.2 0 6])
+            
+            ylabel('Count')
+            xlabel('Residual BIAS (ms)')
+            mymakeaxis(gca,'xytitle',Models{1}{modeli},...
+                'xticks',[-0.2 0 0.2],'xticklabels',{'-0.2','0','0.2'});
         end
 
         %% BIAS/VAR QUIVER

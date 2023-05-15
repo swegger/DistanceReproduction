@@ -51,6 +51,21 @@ for si = 1:length(list)
     wp = mean(WP(:,Fit.modelUsed));
     b = mean(B(:,Fit.modelUsed));
     L = mean(lapse(:,Fit.modelUsed));
+    if ~exist('WM_DRIFT','var')
+        wm_drift = wm;
+    else
+        wm_drift = mean(WM_DRIFT(Fit.modelUsed));
+    end
+    if size(WP,3) > 1
+        wp2 = mean(WP(:,Fit.modelUsed,2));
+    else
+        wp2 = wp;
+    end
+    if ~exist('ALPHA','var')
+        alpha = nan;
+    else
+        alpha = mean(ALPHA(:,Fit.modelUsed));
+    end
     maxrmse = max(max(rmse));
     
     % Display statistics
@@ -73,6 +88,11 @@ for si = 1:length(list)
         estimator.wm_drift = mean(WM_DRIFT(:,Fit.modelUsed));
         minmaxdss =[min(DSS) max(DSS)];
         for i = m
+            
+            if strcmp(Fit.fittype{Fit.modelUsed},'aveMeas_wm_wp_sigp')
+                estimator.type = 'weightedMean';
+                estimator.weights = 1/i *ones(1,i);
+            end
             ta(:,i) = ta_expectation3(ds_vec,wm,i,dt,'Type','N/A',...
                 'method_options',method_opts,'method','numerical',...
                 'trials',simtrials,'wp',0,'Support',minmaxdss,...
@@ -200,9 +220,9 @@ for si = 1:length(list)
             ['$$ w_p = ' num2str(mean(WP(:,Fit.modelUsed,1))) '$$'],...
             ['$$ b = ' num2str(mean(B(:,Fit.modelUsed))) '$$'],...
             ['$$ \lambda = ' num2str(mean(lapse(:,Fit.modelUsed))) '$$'],...
-            ['$$ w_{m_{\textrm{drift}}} = ' num2str(mean(WM_DRIFT(:,Fit.modelUsed))) '$$'],...
-            ['$$ w_{p_2} = ' num2str(mean(WP(:,Fit.modelUsed,2))) '$$'], ...
-            ['$$ \alpha = ' num2str(mean(ALPHA(:,Fit.modelUsed))) '$$']};
+            ['$$ w_{m_{\textrm{drift}}} = ' num2str(wm_drift) '$$'],...
+            ['$$ w_{p_2} = ' num2str(wp2) '$$'], ...
+            ['$$ \alpha = ' num2str(alpha) '$$']};
         text(min(DSS)-0.2*min(DSS),max(DSS),message,'Interpreter','latex')
         
         axis square
@@ -227,8 +247,13 @@ for si = 1:length(list)
         if length(Fit.fittype) > 1
             estimator.type = Fit.fittype{~(Fit.modelUsed == [1 2])};
             estimator.wy = mean(WP(:,~(Fit.modelUsed == [1 2])));
-            estimator.wm_drift = mean(WM_DRIFT(:,~(Fit.modelUsed == [1 2])));
+            estimator.wm_drift = wm_drift;
             for i = m
+                
+                if strcmp(Fit.fittype{~(Fit.modelUsed == [1 2])},'aveMeas_wm_wp_sigp')
+                    estimator.type = 'weightedMean';
+                    estimator.weights = 1/i *ones(1,i);
+                end
                 taAlt(:,i) = ta_expectation3(ds_vec,mean(WM(:,~(Fit.modelUsed == [1 2]))),...
                     i,dt,'Type','N/A','method_options',method_opts,...
                     'method','numerical','trials',simtrials,'wp',0,...
@@ -284,15 +309,30 @@ for si = 1:length(list)
             mh = plot(DSS,mdp_in(:,i),'o','Color',colors(i,:));
             set(mh,'MarkerFaceColor',colors(i,:),'MarkerSize',10)
         end
-        
+
+        if ~exist('WM_DRIFT','var')
+            wm_drift_alt = NaN;
+        else
+            wm_drift_alt = mean(WM_DRIFT(:,~(Fit.modelUsed == [1 2])));
+        end
+        if size(WP,3) > 1
+            wp2_alt = mean(WP(:,~(Fit.modelUsed == [1 2]),2));
+        else
+            wp2_alt = NaN;
+        end
+        if ~exist('ALPHA','var')
+            alpha_alt = nan;
+        else
+            alpha_alt = mean(ALPHA(:,~(Fit.modelUsed == [1 2])));
+        end
         message = {['$$ \verb|' Fit.fittype{~(Fit.modelUsed == [1 2])} '|$$'], ...
             ['$$ w_m = ' num2str(mean(WM(:,~(Fit.modelUsed == [1 2])))) '$$'],...
             ['$$ w_p = ' num2str(mean(WP(:,~(Fit.modelUsed == [1 2]),1))) '$$'],...
             ['$$ b = ' num2str(mean(B(:,~(Fit.modelUsed == [1 2])))) '$$'],...
             ['$$ \lambda = ' num2str(mean(lapse(:,~(Fit.modelUsed == [1 2])))) '$$'],...
-            ['$$ w_{m_{\textrm{drift}}} = ' num2str(mean(WM_DRIFT(:,~(Fit.modelUsed == [1 2])))) '$$'],...
-            ['$$ w_{p_2} = ' num2str(mean(WP(:,~(Fit.modelUsed == [1 2]),2))) '$$'], ...
-            ['$$ \alpha = ' num2str(mean(ALPHA(:,~(Fit.modelUsed == [1 2])))) '$$']};
+            ['$$ w_{m_{\textrm{drift}}} = ' num2str(wm_drift_alt) '$$'],...
+            ['$$ w_{p_2} = ' num2str(wp2_alt) '$$'], ...
+            ['$$ \alpha = ' num2str(alpha_alt) '$$']};
         text(min(DSS)-0.2*min(DSS),max(DSS),message,'Interpreter','latex')
         
         axis square
